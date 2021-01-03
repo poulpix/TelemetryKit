@@ -18,6 +18,7 @@ struct TKViewLibrary: LibraryContentProvider {
 		LibraryItem(TKBooleanLabelView("Label:", data: .constant(true)), title: "Label with data (of boolean type)", category: .control)
 		LibraryItem(TKUInt8LabelView("Label:", data: .constant(123)), title: "Label with data (of UInt8 type)", category: .control)
 		LibraryItem(TKUInt64LabelView("Label:", data: .constant(1234)), title: "Label with data (of UInt64 type)", category: .control)
+		LibraryItem(TKDriverCompactView(TKDriverCompactView_Previews.$driver), title: "Represents a driver info (compact version)", category: .control)
 	}
  
 }

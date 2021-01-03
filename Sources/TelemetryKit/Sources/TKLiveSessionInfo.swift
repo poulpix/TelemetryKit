@@ -31,57 +31,43 @@ public class TKLiveSessionInfo {
 	@Published public var isNetworkGame: Bool
 
 	public var trackTemperatureFormatted: String {
-		get {
-			return "\(trackTemperature)°C"
-		}
+		get { "\(trackTemperature)°C" }
 		set {
 		}
 	}
 	
 	public var airTemperatureFormatted: String {
-		get {
-			return "\(airTemperature)°C"
-		}
+		get { "\(airTemperature)°C" }
 		set {
 		}
 	}
 	
 	public var durationAsString: String {
-		get {
-			return duration.asSessionDurationString
-		}
+		get { duration.asSessionDurationString }
 		set {
 		}
 	}
 	
 	public var timeLeftAsString: String {
-		get {
-			return timeLeft.asSessionDurationString
-		}
+		get { timeLeft.asSessionDurationString }
 		set {
 		}
 	}
 	
 	public var trackLengthInKm: String {
-		get {
-			return String(format: "%.3f km", Double(trackLength) / 1000)
-		}
+		get { String(format: "%.3f km", Double(trackLength) / 1000) }
 		set {
 		}
 	}
 	
 	public var pitSpeedLimitInKph: String {
-		get {
-			return "\(pitSpeedLimit) kph"
-		}
+		get { return "\(pitSpeedLimit) kph" }
 		set {
 		}
 	}
 	
 	public var numberOfMarshalZones: UInt8 {
-		get {
-			return UInt8(marshalZones.count)
-		}
+		get { return UInt8(marshalZones.count) }
 		set {
 		}
 	}
@@ -157,9 +143,7 @@ extension TKLiveSessionInfo: ObservableObject {
 
 extension TKLiveSessionInfo: CustomStringConvertible {
 	
-	public var description: String {
-		return "🛣 \(sessionType.name) session with \(formula.name) on circuit of \(trackId.trackNameAndFlag), weather is \(weather.emojiWeather), air temperature: \(airTemperatureFormatted), track temperature: \(trackTemperatureFormatted)\(isNetworkGame ? " [ONLINE]" : "")"
-	}
+	public var description: String { "🛣 \(sessionType.name) session with \(formula.name) on circuit of \(trackId.trackNameAndFlag), weather is \(weather.emojiWeather), air temperature: \(airTemperatureFormatted), track temperature: \(trackTemperatureFormatted)\(isNetworkGame ? " [ONLINE]" : "")" }
 	
 }
 
@@ -198,13 +182,9 @@ public extension Float32 {
 		return "\(h):\(String(format: "%02d", m)):\(String(format: "%02d", s)).\(String(format: "%03d", ms))"
 	}
 	
-	var asGapString: String {
-		return (self > 0) ? "+\(asLapTimeString)" : ""
-	}
+	var asGapString: String { (self > 0) ? "+\(asLapTimeString)" : "" }
 	
-	var asSessionTime: Date {
-		return Date(timeIntervalSince1970: TimeInterval(exactly: self)!)
-	}
+	var asSessionTime: Date { Date(timeIntervalSince1970: TimeInterval(exactly: self)!)	}
 	
 }
 
@@ -234,9 +214,13 @@ public struct TKParticipantInfo {
 
 extension TKParticipantInfo: CustomStringConvertible {
 	
-	public var description: String {
-		return "\(nationality.emojiFlag) no \(raceNumber) \(name)\(isAI ? " (AI)" : "") on \(teamId.name)"
-	}
+	public var description: String { "\(nationality.emojiFlag) no \(raceNumber) \(name)\(isAI ? " (AI)" : "") on \(teamId.name)" }
+	
+}
+
+extension TKParticipantInfo: Identifiable {
+	
+	public var id: UInt8 { driverId.rawValue }
 	
 }
 
@@ -276,9 +260,7 @@ public struct TKCarStatusInfo {
 
 extension TKCarStatusInfo: CustomStringConvertible {
 	
-	public var description: String {
-		return "📊 Car status: fuel mix = \(fuelMix), tyre compound = \(tyreCompound.name), ERS = \(ersDeployMode), flags = \(vehicleFlags)\n🛠 Damages: FL tyre: \(frontLeftTyreDamage), FR tyre: \(frontRightTyreDamage), RL tyre: \(rearLeftTyreDamage), RR tyre: \(rearRightTyreDamage), FL wing: \(frontLeftWingDamage), FR wing: \(frontRightWingDamage), R wing: \(rearWingDamage), engine: \(engineDamage), gearbox: \(gearBoxDamage)"
-	}
+	public var description: String { "📊 Car status: fuel mix = \(fuelMix), tyre compound = \(tyreCompound.name), ERS = \(ersDeployMode), flags = \(vehicleFlags)\n🛠 Damages: FL tyre: \(frontLeftTyreDamage), FR tyre: \(frontRightTyreDamage), RL tyre: \(rearLeftTyreDamage), RR tyre: \(rearRightTyreDamage), FL wing: \(frontLeftWingDamage), FR wing: \(frontRightWingDamage), R wing: \(rearWingDamage), engine: \(engineDamage), gearbox: \(gearBoxDamage)" }
 	
 }
 
@@ -325,21 +307,9 @@ public struct TKRaceStatusInfo {
 		}
 	}
 
-	public var latestS2Time: Float32 {
-		if lapTimes.count > 0 {
-			return lapTimes.last!.sector2Time
-		} else {
-			return 0
-		}
-	}
+	public var latestS2Time: Float32 { (lapTimes.count > 0) ? lapTimes.last!.sector2Time : 0 }
 	
-	public var latestS3Time: Float32 {
-		if lapTimes.count > 0 {
-			return lapTimes.last!.sector3Time
-		} else {
-			return 0
-		}
-	}
+	public var latestS3Time: Float32 { (lapTimes.count > 0) ? lapTimes.last!.sector3Time : 0 }
 	
 	public init() {
 		bestLapTime = 0
@@ -398,9 +368,7 @@ public struct TKRaceStatusInfo {
 
 extension TKRaceStatusInfo: CustomStringConvertible {
 	
-	public var description: String {
-		return ""
-	}
+	public var description: String { "" }
 	
 }
 
@@ -413,9 +381,7 @@ public struct TKLapTime {
 	public var lapDistance: Float32
 	public var invalidated: Bool
 	
-	public var isCompleteLapTime: Bool {
-		return (sector1Time > 0) && (sector2Time > 0) && (sector3Time > 0) && (lapTime > 0)
-	}
+	public var isCompleteLapTime: Bool { (sector1Time > 0) && (sector2Time > 0) && (sector3Time > 0) && (lapTime > 0) }
 	
 	public init() {
 		sector1Time = 0
@@ -430,49 +396,27 @@ public struct TKLapTime {
 
 extension TKLapTime: CustomStringConvertible {
 	
-	public var description: String {
-		if !isCompleteLapTime {
-			return "(incomplete)"
-		} else {
-			return "\(lapTime.asLapTimeString) (S1: \(sector1Time.asSectorTimeString), S2: \(sector2Time.asSectorTimeString), S3: \(sector3Time.asSectorTimeString))"
-		}
-	}
+	public var description: String { !isCompleteLapTime ? "(incomplete)" : "\(lapTime.asLapTimeString) (S1: \(sector1Time.asSectorTimeString), S2: \(sector2Time.asSectorTimeString), S3: \(sector3Time.asSectorTimeString))" }
 	
 }
 
 public extension Array where Element == TKLapTime {
 	
-	var bestSector1Time: Float32 {
-		return self.filter { $0.sector1Time > 0 }.map { $0.sector1Time }.min()!
-	}
+	var bestSector1Time: Float32 { self.filter { $0.sector1Time > 0 }.map { $0.sector1Time }.min()! }
 	
-	var bestSector2Time: Float32 {
-		return self.filter { $0.sector2Time > 0 }.map { $0.sector2Time }.min()!
-	}
+	var bestSector2Time: Float32 { self.filter { $0.sector2Time > 0 }.map { $0.sector2Time }.min()! }
 	
-	var bestSector3Time: Float32 {
-		return self.filter { $0.sector3Time > 0 }.map { $0.sector3Time }.min()!
-	}
+	var bestSector3Time: Float32 { self.filter { $0.sector3Time > 0 }.map { $0.sector3Time }.min()! }
 	
-	var bestLapTime: Float32 {
-		return self.filter { $0.lapTime > 0 }.map { $0.lapTime }.min()!
-	}
+	var bestLapTime: Float32 { self.filter { $0.lapTime > 0 }.map { $0.lapTime }.min()! }
 	
-	var bestSector1TimeLapNo: UInt8 {
-		return UInt8((self.firstIndex { $0.sector1Time == self.bestSector1Time })! + 1)
-	}
+	var bestSector1TimeLapNo: UInt8 { UInt8((self.firstIndex { $0.sector1Time == self.bestSector1Time })! + 1) }
 	
-	var bestSector2TimeLapNo: UInt8 {
-		return UInt8((self.firstIndex { $0.sector2Time == self.bestSector2Time })! + 1)
-	}
+	var bestSector2TimeLapNo: UInt8 { UInt8((self.firstIndex { $0.sector2Time == self.bestSector2Time })! + 1) }
 	
-	var bestSector3TimeLapNo: UInt8 {
-		return UInt8((self.firstIndex { $0.sector3Time == self.bestSector3Time })! + 1)
-	}
+	var bestSector3TimeLapNo: UInt8 { UInt8((self.firstIndex { $0.sector3Time == self.bestSector3Time })! + 1) }
 
-	var bestLapTimeLapNo: UInt8 {
-		return UInt8((self.firstIndex { $0.lapTime == self.bestLapTime })! + 1)
-	}
+	var bestLapTimeLapNo: UInt8 { UInt8((self.firstIndex { $0.lapTime == self.bestLapTime })! + 1) }
 
 }
 
@@ -486,9 +430,7 @@ public struct TKRaceLeaderReference {
 
 extension TKRaceLeaderReference: CustomStringConvertible {
 	
-	public var description: String {
-		return "\(timestamp.asSessionTimeString): \(lapDistance) meters into lap no \(lapNo)"
-	}
+	public var description: String { "\(timestamp.asSessionTimeString): \(lapDistance) meters into lap no \(lapNo)" }
 	
 }
 
@@ -501,9 +443,7 @@ public struct TKSessionRanking {
 
 extension TKSessionRanking: CustomStringConvertible {
 	
-	public var description: String {
-		return "\(participant.raceStatus.currentPosition) – \(participant.name) – lap \(participant.raceStatus.currentLapNo) – \(participant.raceStatus.currentPosition == 1 ? "LEADER" : "+\(gapToLeader.asGapString)")"
-	}
+	public var description: String { "\(participant.raceStatus.currentPosition) – \(participant.name) – lap \(participant.raceStatus.currentLapNo) – \(participant.raceStatus.currentPosition == 1 ? "LEADER" : "+\(gapToLeader.asGapString)")" }
 	
 }
 
