@@ -29,6 +29,7 @@ public class TKLiveSessionInfo {
 	@Published public var marshalZones: [TKMarshalZone]
 	@Published public var safetyCarStatus: TKSafetyCarStatus
 	@Published public var isNetworkGame: Bool
+	@Published public var liveRankings: [TKSessionRanking]
 
 	public var trackTemperatureFormatted: String {
 		get { "\(trackTemperature)°C" }
@@ -100,6 +101,7 @@ public class TKLiveSessionInfo {
 		marshalZones = [TKMarshalZone]()
 		safetyCarStatus = .noSafetyCar
 		isNetworkGame = false
+		liveRankings = [TKSessionRanking]()
 	}
 	
 	func driver(no driverNo: UInt8) -> TKParticipantInfo? {
@@ -131,8 +133,9 @@ public class TKLiveSessionInfo {
 		var rankings = [TKSessionRanking]()
 		let pCopy = participants.sorted { $0.raceStatus.currentPosition < $1.raceStatus.currentPosition }
 		pCopy.forEach {
-			rankings.append(TKSessionRanking(participant: $0, gapToLeader: gapToLeader(forDriver: $0, at: timestamp)))
+			rankings.append(TKSessionRanking(participant: $0, driverIndex: participants.index(ofDriver: $0.driverId)!, gapToLeader: gapToLeader(forDriver: $0, at: timestamp)))
 		}
+		self.liveRankings = rankings
 		return rankings
 	}
 
@@ -221,6 +224,19 @@ extension TKParticipantInfo: CustomStringConvertible {
 extension TKParticipantInfo: Identifiable {
 	
 	public var id: UInt8 { driverId.rawValue }
+	
+}
+
+public extension Array where Element == TKParticipantInfo {
+	
+	func index(ofDriver driver: TKDriver) -> Int? {
+		for (i, p) in self.enumerated() {
+			if p.driverId == driver {
+				return i
+			}
+		}
+		return nil
+	}
 	
 }
 
@@ -437,6 +453,7 @@ extension TKRaceLeaderReference: CustomStringConvertible {
 public struct TKSessionRanking {
 	
 	public var participant: TKParticipantInfo
+	public var driverIndex: Int
 	public var gapToLeader: Float32
 	
 }
