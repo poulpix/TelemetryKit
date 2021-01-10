@@ -17,7 +17,14 @@ public struct TKDriverCompactView: View {
 	}
 	
     public var body: some View {
-		Text("\(driver.raceStatus.currentPosition) – \(driver.driverId.trigram)")
+		HStack {
+			Text("\(driver.raceStatus.currentPosition)")
+			Rectangle()
+				.fill(Color(driver.teamId.color))
+				.frame(width: 3, height: 14)
+			Text(driver.driverId.trigram)
+			Text(driver.raceStatus.bestLapTime.asLapTimeString)
+		}
     }
 	
 }

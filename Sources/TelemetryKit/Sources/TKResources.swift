@@ -27,6 +27,7 @@ public enum TKFormula1FontType: String, CaseIterable {
 	
 	case regular = "Formula1-Display-Regular"
 	case bold = "Formula1-Display-Bold"
+	case italic = "Formula1-Display-Italic"
 	case wide = "Formula1-Display-Wide"
 	
 }
@@ -174,6 +175,10 @@ public extension UIColor {
 		return TKResources.color(named: "F1Black")
 	}
 	
+	static var formula1OffWhite: UIColor? {
+		return TKResources.color(named: "F1OffWhite")
+	}
+
 	static var formula1LightBlue: UIColor? {
 		return TKResources.color(named: "F1LightBlue")
 	}
@@ -190,6 +195,8 @@ public extension Color {
 	
 	static let f1Black = Color(UIColor.formula1Black ?? .black)
 	
+	static let f1OffWhite = Color(UIColor.formula1OffWhite ?? .white)
+
 	static let f1LightBlue = Color(UIColor.formula1LightBlue ?? .cyan)
 	
 	static var random = {
@@ -235,6 +242,10 @@ public extension NSColor {
 		return TKResources.color(named: "F1Black")
 	}
 	
+	static var formula1OffWhite: NSColor? {
+		return TKResources.color(named: "F1OffWhite")
+	}
+	
 	static var formula1LightBlue: NSColor? {
 		return TKResources.color(named: "F1LightBlue")
 	}
@@ -250,6 +261,8 @@ public extension Color {
 	static let f1Red = Color(NSColor.formula1Red ?? .red)
 	
 	static let f1Black = Color(NSColor.formula1Black ?? .black)
+	
+	static let f1OffWhite = Color(NSColor.formula1OffWhite ?? .white)
 
 	static let f1LightBlue = Color(NSColor.formula1LightBlue ?? .cyan)
 	

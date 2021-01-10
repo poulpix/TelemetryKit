@@ -295,38 +295,20 @@ public struct TKRaceStatusInfo {
 	public var safetyCarDelta: Float32
 	public var lapTimes: [TKLapTime]
 	
-	public var latestLapTime: Float32 {
-		if lapTimes.count > 0 {
-			if lapTimes.count > 1 {
-				return lapTimes[lapTimes.count - 2].lapTime
-			} else {
-				return lapTimes.last!.lapTime
-			}
-		} else {
-			return 0
-		}
-	}
+	public var latestLapTime: Float32 { (lapTimes.count > 0) ? ((lapTimes.count > 1) ? lapTimes[lapTimes.count - 2].lapTime : lapTimes.last!.lapTime) : 0 }
 	
-	public var latestS1Time: Float32 {
-		if lapTimes.count > 0 {
-			if lapTimes.count > 1 {
-				if lapTimes.last!.sector1Time > 0 {
-					return lapTimes.last!.sector1Time
-				} else {
-					return lapTimes[lapTimes.count - 2].sector1Time
-				}
-			} else {
-				return lapTimes.last!.sector1Time
-			}
-		} else {
-			return 0
-		}
-	}
+	public var latestS1Time: Float32 { (lapTimes.count > 0) ? lapTimes.last!.sector1Time : 0 }
+	
+	public var latestS1TimeIsPersonnalBest: Bool { (latestS1Time == 0) ? false : latestS1Time <= lapTimes.bestSector1Time ?? Float32.greatestFiniteMagnitude }
 
-	public var latestS2Time: Float32 { (lapTimes.count > 0) ? lapTimes.last!.sector2Time : 0 }
+	public var latestS2Time: Float32 { (lapTimes.count > 0) ? ((currentSector == .sector2) ? 0 : lapTimes.last!.sector2Time) : 0 }
 	
-	public var latestS3Time: Float32 { (lapTimes.count > 0) ? lapTimes.last!.sector3Time : 0 }
+	public var latestS2TimeIsPersonnalBest: Bool { (latestS2Time == 0) ? false : latestS2Time <= lapTimes.bestSector2Time ?? Float32.greatestFiniteMagnitude }
+
+	public var latestS3Time: Float32 { (lapTimes.count > 0) ? ((currentSector == .sector3) ? 0 : lapTimes.last!.sector3Time) : 0 }
 	
+	public var latestS3TimeIsPersonnalBest: Bool { (latestS3Time == 0) ? false : latestS3Time <= lapTimes.bestSector3Time ?? Float32.greatestFiniteMagnitude }
+
 	public init() {
 		bestLapTime = 0
 		currentLapNo = 0
@@ -344,38 +326,40 @@ public struct TKRaceStatusInfo {
 	
 	public mutating func set(lapTime: Float32, forLapNo lapNo: UInt8) {
 		ensureIsAvailable(lapNo: lapNo)
-		lapTimes[Int(lapNo)].lapTime = lapTime
+		lapTimes[Int(lapNo) - 1].lapTime = lapTime
 		if lapTime < bestLapTime {
 			bestLapTime = lapTime
 		}
 	}
 	
 	public mutating func set(lapTimeInvalidated: Bool, forLapNo lapNo: UInt8) -> Bool {
+		/*
 		ensureIsAvailable(lapNo: lapNo)
-		if !lapTimes[Int(lapNo)].invalidated {
-			lapTimes[Int(lapNo)].invalidated = true
+		if !lapTimes[Int(lapNo) - 1].invalidated {
+			lapTimes[Int(lapNo) - 1].invalidated = true
 			return true
 		}
+		*/
 		return false
 	}
 	
 	public mutating func set(sector1Time: Float, forLapNo lapNo: UInt8) {
 		ensureIsAvailable(lapNo: lapNo)
-		lapTimes[Int(lapNo)].sector1Time = sector1Time
+		lapTimes[Int(lapNo) - 1].sector1Time = sector1Time
 	}
 	
 	public mutating func set(sector2Time: Float, forLapNo lapNo: UInt8) {
 		ensureIsAvailable(lapNo: lapNo)
-		lapTimes[Int(lapNo)].sector2Time = sector2Time
+		lapTimes[Int(lapNo) - 1].sector2Time = sector2Time
 	}
 	
 	public mutating func set(sector3Time: Float, forLapNo lapNo: UInt8) {
 		ensureIsAvailable(lapNo: lapNo)
-		lapTimes[Int(lapNo)].sector3Time = sector3Time
+		lapTimes[Int(lapNo) - 1].sector3Time = sector3Time
 	}
 	
 	private mutating func ensureIsAvailable(lapNo: UInt8) {
-		while lapNo >= lapTimes.count {
+		while lapNo > lapTimes.count {
 			lapTimes.append(TKLapTime())
 		}
 	}
@@ -418,21 +402,41 @@ extension TKLapTime: CustomStringConvertible {
 
 public extension Array where Element == TKLapTime {
 	
-	var bestSector1Time: Float32 { self.filter { $0.sector1Time > 0 }.map { $0.sector1Time }.min()! }
+	var bestSector1Time: Float32? { self.filter { $0.sector1Time > 0 }.map { $0.sector1Time }.min() }
 	
-	var bestSector2Time: Float32 { self.filter { $0.sector2Time > 0 }.map { $0.sector2Time }.min()! }
+	var bestSector2Time: Float32? { self.filter { $0.sector2Time > 0 }.map { $0.sector2Time }.min() }
 	
-	var bestSector3Time: Float32 { self.filter { $0.sector3Time > 0 }.map { $0.sector3Time }.min()! }
+	var bestSector3Time: Float32? { self.filter { $0.sector3Time > 0 }.map { $0.sector3Time }.min() }
 	
-	var bestLapTime: Float32 { self.filter { $0.lapTime > 0 }.map { $0.lapTime }.min()! }
+	var bestLapTime: Float32? { self.filter { $0.lapTime > 0 }.map { $0.lapTime }.min() }
 	
-	var bestSector1TimeLapNo: UInt8 { UInt8((self.firstIndex { $0.sector1Time == self.bestSector1Time })! + 1) }
+	var bestSector1TimeLapNo: UInt8? {
+		guard let lapIndex = self.firstIndex(where: { $0.sector1Time == self.bestSector1Time }) else {
+			return nil
+		}
+		return UInt8(lapIndex + 1)
+	}
 	
-	var bestSector2TimeLapNo: UInt8 { UInt8((self.firstIndex { $0.sector2Time == self.bestSector2Time })! + 1) }
+	var bestSector2TimeLapNo: UInt8? {
+		guard let lapIndex = self.firstIndex(where: { $0.sector2Time == self.bestSector2Time }) else {
+			return nil
+		}
+		return UInt8(lapIndex + 1)
+	}
 	
-	var bestSector3TimeLapNo: UInt8 { UInt8((self.firstIndex { $0.sector3Time == self.bestSector3Time })! + 1) }
+	var bestSector3TimeLapNo: UInt8? {
+		guard let lapIndex = self.firstIndex(where: { $0.sector3Time == self.bestSector3Time }) else {
+			return nil
+		}
+		return UInt8(lapIndex + 1)
+	}
 
-	var bestLapTimeLapNo: UInt8 { UInt8((self.firstIndex { $0.lapTime == self.bestLapTime })! + 1) }
+	var bestLapTimeLapNo: UInt8? {
+		guard let lapIndex = self.firstIndex(where: { $0.lapTime == self.bestLapTime }) else {
+			return nil
+		}
+		return UInt8(lapIndex + 1)
+	}
 
 }
 

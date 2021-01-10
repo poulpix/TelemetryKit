@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 #if os(iOS)
 import UIKit
 #endif
@@ -2023,6 +2024,74 @@ extension TKTyreVisualCompound {
 			return "Hards (F2)"
 		case .f2WetTmp:
 			return "Wet (F2)"
+		}
+	}
+	
+	var abbreviation: String {
+		get {
+			switch self {
+			case .unknown:
+				return "X"
+			case .f1ModernInter:
+				return "I"
+			case .f1ModernWet:
+				return "W"
+			case .f1ClassicDry:
+				return "D"
+			case .f1ClassicWet:
+				return "R"
+			case .f2SuperSoft:
+				return "U"
+			case .f2Soft:
+				return "S"
+			case .f2Medium:
+				return "M"
+			case .f2Hard:
+				return "H"
+			case .f2Wet:
+				return "W"
+			case .f1ModernSoft:
+				return "S"
+			case .f1ModernMedium:
+				return "M"
+			case .f1ModernHard:
+				return "H"
+			case .f2SuperSoftTmp:
+				return "U"
+			case .f2SoftTmp:
+				return "S"
+			case .f2MediumTmp:
+				return "M"
+			case .f2HardTmp:
+				return "H"
+			case .f2WetTmp:
+				return "W"
+			}
+		}
+		set {
+		}
+	}
+	
+	var color: Color {
+		get {
+			switch self {
+			case .unknown:
+				return .gray
+			case .f1ModernInter:
+				return Color(TKResources.color(named: "F1TyreIntermediate") ?? .green)
+			case .f1ModernWet, .f1ClassicWet, .f2Wet, .f2WetTmp:
+				return Color(TKResources.color(named: "F1TyreWet") ?? .blue)
+			case .f1ClassicDry, .f2Hard, .f1ModernHard, .f2HardTmp:
+				return Color(TKResources.color(named: "F1TyreHard") ?? .white)
+			case .f2SuperSoft, .f2SuperSoftTmp:
+				return Color(TKResources.color(named: "F1TyreUltraSoft") ?? .purple)
+			case .f2Soft, .f1ModernSoft, .f2SoftTmp:
+				return Color(TKResources.color(named: "F1TyreSoft") ?? .red)
+			case .f2Medium, .f1ModernMedium, .f2MediumTmp:
+				return Color(TKResources.color(named: "F1TyreMedium") ?? .yellow)
+			}
+		}
+		set {
 		}
 	}
 	

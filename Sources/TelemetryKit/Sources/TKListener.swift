@@ -201,10 +201,10 @@ extension TKListener: TKDelegate {
 						}
 					}
 				}
-                if (ld.currentLapNum > 0) && (liveSessionInfo.participants[i].raceStatus.currentLapNo != (ld.currentLapNum - 1)) {
-					liveSessionInfo.participants[i].raceStatus.currentLapNo = (ld.currentLapNum - 1)
-					print("➰ \(driver.name) just finished lap no \(ld.currentLapNum - 1)")
-					uiDelegate?.driver(driver, finishedLapNo: ld.currentLapNum - 1)
+                if (ld.currentLapNum > liveSessionInfo.participants[i].raceStatus.currentLapNo) {
+					print("➰ \(driver.name) just finished lap no \(ld.currentLapNum)")
+					uiDelegate?.driver(driver, finishedLapNo: ld.currentLapNum)
+					liveSessionInfo.participants[i].raceStatus.currentLapNo = ld.currentLapNum
 				}
 				if liveSessionInfo.participants[i].raceStatus.pitStatus != ld.pitStatus {
 					let oldPitStatus = liveSessionInfo.participants[i].raceStatus.pitStatus
