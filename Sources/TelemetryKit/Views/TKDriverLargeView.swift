@@ -30,7 +30,8 @@ public struct TKDriverLargeView: View {
 				Text(driver.driverId.name.uppercased())
 			}
 			Group {
-				Text(driver.raceStatus.bestLapTime.asLapTimeString)
+				Text(driver.raceStatus.latestLapTime.asLapTimeString)
+					.foregroundColor(driver.raceStatus.latestLapTimeIsPersonnalBest ? Color(TKResources.color(named: "F1TimingGreen") ?? .green) : Color(TKResources.color(named: "F1TimingWhite") ?? .white))
 				TKTyreCompoundView($driver.carStatus.tyreCompound)
 				Text(gapToLeader.asGapString)
 				Text(driver.raceStatus.latestS1Time.asSectorTimeString)

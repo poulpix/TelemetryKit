@@ -297,6 +297,8 @@ public struct TKRaceStatusInfo {
 	
 	public var latestLapTime: Float32 { (lapTimes.count > 0) ? ((lapTimes.count > 1) ? lapTimes[lapTimes.count - 2].lapTime : lapTimes.last!.lapTime) : 0 }
 	
+	public var latestLapTimeIsPersonnalBest: Bool { latestLapTime <= bestLapTime }
+	
 	public var latestS1Time: Float32 { (lapTimes.count > 0) ? lapTimes.last!.sector1Time : 0 }
 	
 	public var latestS1TimeIsPersonnalBest: Bool { (latestS1Time == 0) ? false : latestS1Time <= lapTimes.bestSector1Time ?? Float32.greatestFiniteMagnitude }
@@ -333,6 +335,7 @@ public struct TKRaceStatusInfo {
 	}
 	
 	public mutating func set(lapTimeInvalidated: Bool, forLapNo lapNo: UInt8) -> Bool {
+		//TODO: uncomment this but make sure it doesn't mess up the `lapTimes` array
 		/*
 		ensureIsAvailable(lapNo: lapNo)
 		if !lapTimes[Int(lapNo) - 1].invalidated {
