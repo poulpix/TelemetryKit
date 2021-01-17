@@ -18,7 +18,7 @@ public struct TKLiveRankingsLargeView: View {
 
     public var body: some View {
 		ForEach(liveSessionInfo.liveRankings.indices, id: \.self) { idx in
-			TKDriverLargeView($liveSessionInfo.participants[liveSessionInfo.liveRankings[idx].driverIndex], gapToLeader: $liveSessionInfo.liveRankings[idx].gapToLeader)
+            TKDriverLargeView($liveSessionInfo.participants[liveSessionInfo.liveRankings[idx].driverIndex], fastestS1: $liveSessionInfo.bestS1Time, fastestS2: $liveSessionInfo.bestS2Time, fastestS3: $liveSessionInfo.bestS3Time, fastestLap: $liveSessionInfo.bestLapTime, gapToLeader: $liveSessionInfo.liveRankings[idx].gapToLeader)
 		}
     }
 	

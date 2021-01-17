@@ -184,8 +184,12 @@ extension TKListener: TKDelegate {
 						print("⏱ \(driver.name) just set his first and personal best lap time in \(ld.bestLapTime.asLapTimeString)")
 					}
 					uiDelegate?.driver(driver, setBestLapTime: ld.bestLapTime, atLapNo: ld.currentLapNum - 1)
+                    if (ld.bestLapTime < liveSessionInfo.bestLapTime) || (liveSessionInfo.bestLapTime == 0) {
+                        liveSessionInfo.bestLapTime = ld.bestLapTime
+                        print("⏱ \(driver.name) has set a new fastest lap time in \(ld.bestLapTime.asLapTimeString)")
+                    }
 				}
-				if liveSessionInfo.participants[i].raceStatus.currentPosition != ld.carPosition {
+                if liveSessionInfo.participants[i].raceStatus.currentPosition != ld.carPosition {
 					positionsChanged = true
 					let oldPosition = liveSessionInfo.participants[i].raceStatus.currentPosition
 					liveSessionInfo.participants[i].raceStatus.currentPosition = ld.carPosition
@@ -202,9 +206,15 @@ extension TKListener: TKDelegate {
 					}
 				}
                 if (ld.currentLapNum > liveSessionInfo.participants[i].raceStatus.currentLapNo) {
-					print("➰ \(driver.name) just finished lap no \(ld.currentLapNum)")
-					uiDelegate?.driver(driver, finishedLapNo: ld.currentLapNum)
-					liveSessionInfo.participants[i].raceStatus.currentLapNo = ld.currentLapNum
+                    let oldLapNo = liveSessionInfo.participants[i].raceStatus.currentLapNo
+                    liveSessionInfo.participants[i].raceStatus.currentLapNo = ld.currentLapNum
+                    liveSessionInfo.participants[i].raceStatus.lastLapTime = ld.lastLapTime
+                    if (oldLapNo > 0) {
+                        print("➰ \(driver.name) just finished lap no \(ld.currentLapNum) in \(ld.lastLapTime.asLapTimeString)")
+                        liveSessionInfo.participants[i].raceStatus.set(lapTime: ld.lastLapTime, forLapNo: ld.currentLapNum - 1)
+                        uiDelegate?.driver(driver, finishedLapNo: ld.currentLapNum, withTime: ld.lastLapTime)
+                        uiDelegate?.driver(driver, setLapTime: ld.lastLapTime, forLapNo: ld.currentLapNum - 1)
+                    }
 				}
 				if liveSessionInfo.participants[i].raceStatus.pitStatus != ld.pitStatus {
 					let oldPitStatus = liveSessionInfo.participants[i].raceStatus.pitStatus
@@ -236,18 +246,28 @@ extension TKListener: TKDelegate {
 					switch ld.sector {
 					case .sector1:
 						if ld.currentLapNum > 1 {
-							liveSessionInfo.participants[i].raceStatus.set(sector3Time: ld.lastLapTime - liveSessionInfo.participants[i].raceStatus.latestS1Time - liveSessionInfo.participants[i].raceStatus.latestS2Time, forLapNo: ld.currentLapNum - 1)
-							uiDelegate?.driver(driver, setSector3Time: ld.lastLapTime - liveSessionInfo.participants[i].raceStatus.latestS1Time - liveSessionInfo.participants[i].raceStatus.latestS2Time, forLapNo: ld.currentLapNum - 1)
-							liveSessionInfo.participants[i].raceStatus.set(lapTime: ld.lastLapTime, forLapNo: ld.currentLapNum - 1)
-							uiDelegate?.driver(driver, setLapTime: ld.lastLapTime, forLapNo: ld.currentLapNum - 1)
-							print("⏱ \(driver.name) finished lap no \(ld.currentLapNum - 1) in \(ld.lastLapTime.asLapTimeString)")
+                            let s3Time = ld.lastLapTime - liveSessionInfo.participants[i].raceStatus.latestS1Time - liveSessionInfo.participants[i].raceStatus.latestS2Time
+							liveSessionInfo.participants[i].raceStatus.set(sector3Time: s3Time, forLapNo: ld.currentLapNum - 1)
+							uiDelegate?.driver(driver, setSector3Time: s3Time, forLapNo: ld.currentLapNum - 1)
+                            if (s3Time < liveSessionInfo.bestS3Time) || (liveSessionInfo.bestS3Time == 0) {
+                                liveSessionInfo.bestS3Time = s3Time
+                                print("⏱ \(driver.name) just set the best sector 3 time in \(s3Time.asSectorTimeString)")
+                            }
 						}
 					case .sector2:
 						liveSessionInfo.participants[i].raceStatus.set(sector1Time: ld.sector1Time, forLapNo: ld.currentLapNum)
 						uiDelegate?.driver(driver, setSector1Time: ld.sector1Time, forLapNo: ld.currentLapNum)
+                        if (ld.sector1Time < liveSessionInfo.bestS1Time) || (liveSessionInfo.bestS1Time == 0) {
+                            liveSessionInfo.bestS1Time = ld.sector1Time
+                            print("⏱ \(driver.name) just set the best sector 1 time in \(ld.sector1Time.asSectorTimeString)")
+                        }
 					case .sector3:
 						liveSessionInfo.participants[i].raceStatus.set(sector2Time: ld.sector2Time, forLapNo: ld.currentLapNum)
 						uiDelegate?.driver(driver, setSector2Time: ld.sector2Time, forLapNo: ld.currentLapNum)
+                        if (ld.sector2Time < liveSessionInfo.bestS2Time) || (liveSessionInfo.bestS2Time == 0) {
+                            liveSessionInfo.bestS2Time = ld.sector2Time
+                            print("⏱ \(driver.name) just set the best sector 2 time in \(ld.sector2Time.asSectorTimeString)")
+                        }
 					}
 					liveSessionInfo.participants[i].raceStatus.currentSector = ld.sector
 				}
@@ -257,6 +277,10 @@ extension TKListener: TKDelegate {
 						uiDelegate?.driver(driver, lapTimeInvalidatedForLapNo: ld.currentLapNum)
 					}
 				}
+                liveSessionInfo.participants[i].raceStatus.currentLapTime = ld.currentLapTime
+                liveSessionInfo.participants[i].raceStatus.currentLapDistance = ld.lapDistance
+                liveSessionInfo.participants[i].raceStatus.totalDistance = ld.totalDistance
+                liveSessionInfo.participants[i].raceStatus.safetyCarDelta = ld.safetyCarDelta
 			}
 		}
 		let liveRankings = liveSessionInfo.liveRankings(at: timestamp)

@@ -64,7 +64,7 @@ public protocol TKUIDelegate {
 	func driver(_ driver: TKParticipantInfo, setLapTime lap: Float32, forLapNo lapNo: UInt8)
 	func driver(_ driver: TKParticipantInfo, setBestLapTime lap: Float32, atLapNo lapNo: UInt8)
 	func driver(_ driver: TKParticipantInfo, positionChangedFrom positionFrom: UInt8, to positionTo: UInt8)
-	func driver(_ driver: TKParticipantInfo, finishedLapNo lapNo: UInt8)
+    func driver(_ driver: TKParticipantInfo, finishedLapNo lapNo: UInt8, withTime lapTime: Float32)
 	func driver(_ driver: TKParticipantInfo, pitStatusChangedFrom pitStatusFrom: TKPitStatus, to pitStatusTo: TKPitStatus)
 	func driver(_ driver: TKParticipantInfo, lapTimeInvalidatedForLapNo lapNo: UInt8)
 	func driver(_ driver: TKParticipantInfo, receivedTimePenalty timePenalty: UInt8)

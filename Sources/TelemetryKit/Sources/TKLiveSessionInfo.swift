@@ -30,6 +30,10 @@ public class TKLiveSessionInfo {
 	@Published public var safetyCarStatus: TKSafetyCarStatus
 	@Published public var isNetworkGame: Bool
 	@Published public var liveRankings: [TKSessionRanking]
+    @Published public var bestS1Time: Float32
+    @Published public var bestS2Time: Float32
+    @Published public var bestS3Time: Float32
+    @Published public var bestLapTime: Float32
 
 	public var trackTemperatureFormatted: String {
 		get { "\(trackTemperature)°C" }
@@ -102,6 +106,10 @@ public class TKLiveSessionInfo {
 		safetyCarStatus = .noSafetyCar
 		isNetworkGame = false
 		liveRankings = [TKSessionRanking]()
+        bestS1Time = 0
+        bestS2Time = 0
+        bestS3Time = 0
+        bestLapTime = 0
 	}
 	
 	func driver(no driverNo: UInt8) -> TKParticipantInfo? {
@@ -282,9 +290,12 @@ extension TKCarStatusInfo: CustomStringConvertible {
 
 public struct TKRaceStatusInfo {
 	
-	public var bestLapTime: Float32
+    public var currentLapTime: Float32
+    public var lastLapTime: Float32
+    public var bestLapTime: Float32
 	public var currentLapNo: UInt8
 	public var currentSector: TKSector
+    public var currentLapDistance: Float32
 	public var totalDistance: Float32
 	public var currentPosition: UInt8
 	public var gridPosition: UInt8
@@ -295,9 +306,7 @@ public struct TKRaceStatusInfo {
 	public var safetyCarDelta: Float32
 	public var lapTimes: [TKLapTime]
 	
-	public var latestLapTime: Float32 { (lapTimes.count > 0) ? ((lapTimes.count > 1) ? lapTimes[lapTimes.count - 2].lapTime : lapTimes.last!.lapTime) : 0 }
-	
-	public var latestLapTimeIsPersonnalBest: Bool { latestLapTime <= bestLapTime }
+	public var lastLapTimeIsPersonnalBest: Bool { lastLapTime <= bestLapTime }
 	
 	public var latestS1Time: Float32 { (lapTimes.count > 0) ? lapTimes.last!.sector1Time : 0 }
 	
@@ -312,9 +321,12 @@ public struct TKRaceStatusInfo {
 	public var latestS3TimeIsPersonnalBest: Bool { (latestS3Time == 0) ? false : latestS3Time <= lapTimes.bestSector3Time ?? Float32.greatestFiniteMagnitude }
 
 	public init() {
+        currentLapTime = 0
+        lastLapTime = 0
 		bestLapTime = 0
 		currentLapNo = 0
 		currentSector = .sector1
+        currentLapDistance = 0
 		totalDistance = 0
 		currentPosition = 0
 		gridPosition = 0
