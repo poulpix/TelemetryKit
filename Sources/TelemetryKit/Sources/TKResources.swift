@@ -203,6 +203,10 @@ public extension Color {
 		Color(UIColor.random)
 	}
 	
+	static func timingColor(purpleTime: Float32, isPersonnalBestTime: Bool, currentTime: Float32) -> Color {
+		return ((currentTime <= purpleTime) && (currentTime > 0)) ? Color(TKResources.color(named: "F1TimingPurple") ?? .purple) : isPersonnalBestTime ? Color(TKResources.color(named: "F1TimingGreen") ?? .green) : Color(TKResources.color(named: "F1TimingWhite") ?? .white)
+	}
+	
 }
 #endif
 

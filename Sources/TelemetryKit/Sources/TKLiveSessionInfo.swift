@@ -146,6 +146,10 @@ public class TKLiveSessionInfo {
 		self.liveRankings = rankings
 		return rankings
 	}
+	
+	func participant(at index: Range<Array<TKSessionRanking>.Index>.Element) -> TKParticipantInfo {
+		return participants[liveRankings[index].driverIndex]
+	}
 
 }
 
