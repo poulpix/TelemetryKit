@@ -34,12 +34,7 @@ public struct TKUInt8LabelView: View {
 struct TKUInt8LabelView_Previews: PreviewProvider {
 	
 	static var previews: some View {
-		Group {
-			TKUInt8LabelView("Label:", data: .constant(123))
-				.environment(\.colorScheme, .light)
-			TKUInt8LabelView("Label:", data: .constant(123))
-				.environment(\.colorScheme, .dark)
-		}
+		TKGenericPreview(TKUInt8LabelView("Label:", data: .constant(123)))
 	}
 	
 }

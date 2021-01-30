@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 
+#if os(iOS)
 public struct TKImage: View, UIViewRepresentable {
 	
     public var name: String
@@ -47,3 +48,47 @@ public struct TKImage: View, UIViewRepresentable {
     }
 	
 }
+#endif
+
+#if os(macOS)
+public struct TKImage: View, NSViewRepresentable {
+	
+	public typealias NSViewType = NSImageView
+	
+	public var name: String
+	fileprivate var imageView: NSImageView = NSImageView()
+	fileprivate var originalImage: NSImage!
+	
+	public init(_ name: String) {
+		self.name = name
+		self.originalImage = try! TKResources.image(named: name)
+		self.imageView.image = originalImage
+	}
+
+	public func makeNSView(context: Context) -> NSImageView {
+		imageView
+	}
+
+	public func updateNSView(_ uiView: NSImageView, context: Context) {
+	}
+	
+	fileprivate func scaledImage(width: CGFloat, height: CGFloat) -> NSImage {
+		let size = CGSize(width: width, height: height)
+		if (originalImage.size == size) {
+			return originalImage
+		}
+		
+		let image = NSImage(size: size)
+		image.lockFocus()
+		image.draw(in: NSMakeRect(0, 0, width, height), from: NSMakeRect(0, 0, originalImage.size.width, originalImage.size.height), operation: .sourceOver, fraction: CGFloat(1))
+		image.unlockFocus()
+		return image
+	}
+	
+	public func resize(width: CGFloat, height: CGFloat) -> some View {
+		imageView.image = scaledImage(width: width, height: height)
+		return frame(width: width, height: height, alignment: .center)
+	}
+	
+}
+#endif

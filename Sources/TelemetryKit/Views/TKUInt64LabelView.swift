@@ -34,12 +34,7 @@ public struct TKUInt64LabelView: View {
 struct TKUInt64LabelView_Previews: PreviewProvider {
 	
 	static var previews: some View {
-		Group {
-			TKUInt64LabelView("Label:", data: .constant(1234))
-				.environment(\.colorScheme, .light)
-			TKUInt64LabelView("Label:", data: .constant(1234))
-				.environment(\.colorScheme, .dark)
-		}
+		TKGenericPreview(TKUInt64LabelView("Label:", data: .constant(1234)))
 	}
 	
 }

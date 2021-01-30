@@ -34,12 +34,7 @@ public struct TKTextLabelView: View {
 struct TKTextLabelView_Previews: PreviewProvider {
 	
 	static var previews: some View {
-		Group {
-			TKTextLabelView("Label:", dataFormat: "%@", data: .constant("test"))
-				.environment(\.colorScheme, .light)
-			TKTextLabelView("Label:", data: .constant("test"))
-				.environment(\.colorScheme, .dark)
-		}
+		TKGenericPreview(TKTextLabelView("Label:", dataFormat: "%@", data: .constant("test")))
 	}
 	
 }

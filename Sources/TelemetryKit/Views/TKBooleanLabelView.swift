@@ -32,12 +32,7 @@ public struct TKBooleanLabelView: View {
 struct TKBooleanLabelView_Previews: PreviewProvider {
 	
 	static var previews: some View {
-		Group {
-			TKBooleanLabelView("Label:", data: .constant(true))
-				.environment(\.colorScheme, .light)
-			TKBooleanLabelView("Label:", data: .constant(true))
-				.environment(\.colorScheme, .dark)
-		}
+		TKGenericPreview(TKBooleanLabelView("Label:", data: .constant(true)))
 	}
 	
 }

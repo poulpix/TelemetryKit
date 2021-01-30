@@ -96,10 +96,8 @@ public struct TKResources {
 	}
 	
 	public static func font(named fontName: String, ofSize fontSize: CGFloat = 12) throws -> NSFont {
-		guard let fontURL = resourceURL(named: fontName, ofType: "otf") else {
-			throw TKError.resourceNotFound(resourceName: fontName)
-		}
 		do {
+			let fontURL = try resourceURL(named: fontName, ofType: "otf")
 			let fontData = try Data(contentsOf: fontURL)
 			guard let dataProvider = CGDataProvider(data: fontData as CFData) else {
 				throw TKError.fontError(fontName: fontName)
@@ -131,7 +129,7 @@ public struct TKResources {
 	#endif
 	
 	public static func resourceURL(named name: String, ofType resourceType: String) throws -> URL {
-		guard let resourceURL = Bundle.module.url(forResource: "Resources/\(name)", withExtension: resourceType) else {
+		guard let resourceURL = Bundle.module.url(forResource: "Other Resources/\(name)", withExtension: resourceType) else {
 			throw TKError.resourceNotFound(resourceName: name)
 		}
 		return resourceURL
@@ -219,7 +217,7 @@ public extension NSFont {
 
 	static fileprivate func registerFont(named fontName: String) throws {
 		do {
-			let fontURL = TKResources.resourceURL(named: fontName, ofType: "otf")
+			let fontURL = try TKResources.resourceURL(named: fontName, ofType: "otf")
 			let fontData = try Data(contentsOf: fontURL)
 			let dataProvider = CGDataProvider(data: fontData as CFData)!
 			let fontRef = CGFont(dataProvider)
@@ -272,6 +270,10 @@ public extension Color {
 	
 	static var random = {
 		Color(NSColor.random)
+	}
+	
+	static func timingColor(purpleTime: Float32, isPersonnalBestTime: Bool, currentTime: Float32) -> Color {
+		return ((currentTime <= purpleTime) && (currentTime > 0)) ? Color(TKResources.color(named: "F1TimingPurple") ?? .purple) : isPersonnalBestTime ? Color(TKResources.color(named: "F1TimingGreen") ?? .green) : Color(TKResources.color(named: "F1TimingWhite") ?? .white)
 	}
 	
 }

@@ -34,12 +34,7 @@ struct TKDriverCompactView_Previews: PreviewProvider {
 	@State static var driver = TKParticipantInfo()
 	
     static var previews: some View {
-		Group {
-			TKDriverCompactView($driver)
-				.environment(\.colorScheme, .light)
-			TKDriverCompactView($driver)
-				.environment(\.colorScheme, .dark)
-		}
-    }
+		TKGenericPreview(TKDriverCompactView($driver))
+	}
 	
 }

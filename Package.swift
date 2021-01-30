@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "TelemetryKit",
-	platforms: [.iOS(.v14), .macOS(.v10_14), .tvOS(.v14), .watchOS(.v7)],
+	platforms: [.iOS(.v14), .macOS(.v11), .tvOS(.v14), .watchOS(.v7)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
@@ -23,7 +23,7 @@ let package = Package(
             name: "TelemetryKit",
             dependencies: ["CocoaAsyncSocket"],
 			resources: [
-				.copy("Resources"),
+				.copy("Other Resources"),
 			]),
     ]
 )

@@ -38,12 +38,7 @@ public struct TKTyreCompoundView: View {
 struct TKTyreCompoundView_Previews: PreviewProvider {
 	
     static var previews: some View {
-		Group {
-			TKTyreCompoundView(.constant(.f1ModernSoft))
-				.environment(\.colorScheme, .light)
-			TKTyreCompoundView(.constant(.f1ModernSoft))
-				.environment(\.colorScheme, .dark)
-		}
+		TKGenericPreview(TKTyreCompoundView(.constant(.f1ModernSoft)))
     }
 	
 }
