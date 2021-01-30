@@ -38,7 +38,20 @@ public struct TKTyreCompoundView: View {
 struct TKTyreCompoundView_Previews: PreviewProvider {
 	
     static var previews: some View {
-		TKGenericPreview(TKTyreCompoundView(.constant(.f1ModernSoft)))
+		TKGenericPreview(
+			VStack {
+				TKTyreCompoundView(.constant(.f1ModernHard))
+				TKTyreCompoundView(.constant(.f1ModernMedium))
+				TKTyreCompoundView(.constant(.f1ModernSoft))
+				TKTyreCompoundView(.constant(.f1ModernInter))
+				TKTyreCompoundView(.constant(.f1ModernWet))
+				TKTyreCompoundView(.constant(.f2Hard))
+				TKTyreCompoundView(.constant(.f2Medium))
+				TKTyreCompoundView(.constant(.f2Soft))
+				TKTyreCompoundView(.constant(.f2SuperSoft))
+				TKTyreCompoundView(.constant(.f2Wet))
+			}
+		)
     }
 	
 }

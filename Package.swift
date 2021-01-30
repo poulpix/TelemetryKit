@@ -10,6 +10,7 @@ let package = Package(
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "TelemetryKit",
+			type: .dynamic,
             targets: ["TelemetryKit"]),
     ],
     dependencies: [
@@ -23,7 +24,8 @@ let package = Package(
             name: "TelemetryKit",
             dependencies: ["CocoaAsyncSocket"],
 			resources: [
-				.copy("Other Resources"),
+				.copy("Fonts"),
+				.copy("Sounds"),
 			]),
     ]
 )

@@ -21,6 +21,7 @@ public struct TKBooleanLabelView: View {
 	public var body: some View {
 		HStack {
 			Text(label)
+				.font(.formula1Font(ofType: .regular, andSize: 14))
 			Text(TKBool.from(data).asString)
 				.font(.formula1Font(ofType: .bold, andSize: 14))
 				.foregroundColor(.f1LightBlue)

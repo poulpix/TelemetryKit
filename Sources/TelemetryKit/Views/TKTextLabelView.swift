@@ -23,6 +23,7 @@ public struct TKTextLabelView: View {
 	public var body: some View {
 		HStack {
 			Text(label)
+				.font(.formula1Font(ofType: .regular, andSize: 14))
 			Text(String(format: dataFormat, data))
 				.font(.formula1Font(ofType: .bold, andSize: 14))
 				.foregroundColor(.f1LightBlue)

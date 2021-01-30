@@ -32,6 +32,22 @@ public enum TKFormula1FontType: String, CaseIterable {
 	
 }
 
+public enum TKResourceType: String {
+	
+	case sound = "wav"
+	case font = "otf"
+	
+	var resourceFolderName: String {
+		switch self {
+		case .sound:
+			return "Sounds"
+		case .font:
+			return "Fonts"
+		}
+	}
+	
+}
+
 public struct TKResources {
 	
 	#if os(iOS)
@@ -42,7 +58,7 @@ public struct TKResources {
 	}
 	
 	public static func image(named imageName: String) throws -> UIImage {
-		guard let image = UIImage(named: imageName, in: Bundle.module, compatibleWith: nil) else {
+		guard let image = UIImage(named: imageName, in: packageBundle, compatibleWith: nil) else {
 			throw TKError.resourceNotFound(resourceName: imageName)
 		}
 		return image
@@ -50,7 +66,7 @@ public struct TKResources {
 	
 	public static func font(named fontName: String, ofSize fontSize: CGFloat = 12) throws -> UIFont {
 		do {
-			let fontURL = try resourceURL(named: fontName, ofType: "otf")
+			let fontURL = try resourceURL(named: fontName, ofType: .font)
 			let fontData = try Data(contentsOf: fontURL)
 			guard let dataProvider = CGDataProvider(data: fontData as CFData) else {
 				throw TKError.fontError(fontName: fontName)
@@ -74,7 +90,7 @@ public struct TKResources {
 	}
 	
 	public static func color(named colorName: String) -> UIColor? {
-		guard let color = UIColor(named: colorName, in: Bundle.module, compatibleWith: nil) else {
+		guard let color = UIColor(named: colorName, in: packageBundle, compatibleWith: nil) else {
 			return nil
 		}
 		return color
@@ -89,7 +105,7 @@ public struct TKResources {
 	}
 	
 	public static func image(named imageName: String) throws -> NSImage {
-		guard let image = Bundle.module.image(forResource: imageName) else {
+		guard let image = packageBundle.image(forResource: imageName) else {
 			throw TKError.resourceNotFound(resourceName: imageName)
 		}
 		return image
@@ -97,7 +113,7 @@ public struct TKResources {
 	
 	public static func font(named fontName: String, ofSize fontSize: CGFloat = 12) throws -> NSFont {
 		do {
-			let fontURL = try resourceURL(named: fontName, ofType: "otf")
+			let fontURL = try resourceURL(named: fontName, ofType: .font)
 			let fontData = try Data(contentsOf: fontURL)
 			guard let dataProvider = CGDataProvider(data: fontData as CFData) else {
 				throw TKError.fontError(fontName: fontName)
@@ -121,15 +137,15 @@ public struct TKResources {
 	}
 	
 	public static func color(named colorName: String) -> NSColor? {
-		guard let color = NSColor(named: colorName, bundle: Bundle.module) else {
+		guard let color = NSColor(named: colorName, bundle: packageBundle) else {
 			return nil
 		}
 		return color
 	}
 	#endif
 	
-	public static func resourceURL(named name: String, ofType resourceType: String) throws -> URL {
-		guard let resourceURL = Bundle.module.url(forResource: "Other Resources/\(name)", withExtension: resourceType) else {
+	public static func resourceURL(named name: String, ofType resourceType: TKResourceType) throws -> URL {
+		guard let resourceURL = packageBundle.url(forResource: "\(resourceType.resourceFolderName)/\(name)", withExtension: resourceType.rawValue) else {
 			throw TKError.resourceNotFound(resourceName: name)
 		}
 		return resourceURL
@@ -146,7 +162,7 @@ public extension UIFont {
 
 	static fileprivate func registerFont(named fontName: String) throws {
 		do {
-			let fontURL = try TKResources.resourceURL(named: fontName, ofType: "otf")
+			let fontURL = try TKResources.resourceURL(named: fontName, ofType: .font)
 			let fontData = try Data(contentsOf: fontURL)
 			let dataProvider = CGDataProvider(data: fontData as CFData)!
 			let fontRef = CGFont(dataProvider)
@@ -282,6 +298,9 @@ public extension Color {
 public extension Font {
 	
 	static func formula1Font(ofType fontType: TKFormula1FontType = .regular, andSize fontSize: CGFloat = 12) -> Font {
+		if !UIFont.familyNames.contains("Formula1") {
+			TKResources.loadAllFonts()
+		}
 		return Font.custom(fontType.rawValue, size: fontSize)
 	}
 	
@@ -299,3 +318,44 @@ public extension UIView {
 	
 }
 #endif
+
+// Code that fixes the XCPreviewAgent crash when rendering a color embedded in a bundle and loaded from another target
+// Source: https://stackoverflow.com/questions/64540082/xcode-12-swiftui-preview-doesnt-work-on-swift-package-when-have-another-swift
+
+public let packageBundle = Bundle.tkModule
+
+private class CurrentBundleFinder {}
+
+extension Foundation.Bundle {
+
+	static var tkModule: Bundle = {
+		// The name of the local package, prepended by "LocalPackages_" for iOS and "PackageName_" for macOS
+		// PackageName and TargetName may be identical
+		let bundleNameIOS = "LocalPackages_TelemetryKit"
+		let bundleNameMacOs = "TelemetryKit_TelemetryKit"
+
+		let candidates = [
+			// Bundle should be present here when the package is linked into an App
+			Bundle.main.resourceURL,
+			// Bundle should be present here when the package is linked into a framework.
+			Bundle(for: CurrentBundleFinder.self).resourceURL,
+			// For command-line tools
+			Bundle.main.bundleURL,
+			// Bundle should be present here when running previews from a different package (this is the path to "…/Debug-iphonesimulator/")
+			Bundle(for: CurrentBundleFinder.self).resourceURL?.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent(),
+			Bundle(for: CurrentBundleFinder.self).resourceURL?.deletingLastPathComponent().deletingLastPathComponent(),
+		]
+
+		for candidate in candidates {
+			let bundlePathiOS = candidate?.appendingPathComponent(bundleNameIOS + ".bundle")
+			let bundlePathMacOS = candidate?.appendingPathComponent(bundleNameMacOs + ".bundle")
+			if let bundle = bundlePathiOS.flatMap(Bundle.init(url:)) {
+				return bundle
+			} else if let bundle = bundlePathMacOS.flatMap(Bundle.init(url:)) {
+				return bundle
+			}
+		}
+		fatalError("unable to find bundle")
+	}()
+
+}

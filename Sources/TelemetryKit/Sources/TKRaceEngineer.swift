@@ -50,7 +50,7 @@ internal class TKRaceEngineer: NSObject {
 		radioSoundPlayer = AVAudioPlayer()
 		super.init()
 		do {
-			radioSoundPlayer = try AVAudioPlayer(contentsOf: TKResources.resourceURL(named: "F1Radio", ofType: "wav"))
+			radioSoundPlayer = try AVAudioPlayer(contentsOf: TKResources.resourceURL(named: "F1Radio", ofType: .sound))
 			radioSoundPlayer.delegate = self
 		} catch let error {
 			print("🔕 Error while initializing F1 radio sound: \(error)")
@@ -72,7 +72,7 @@ internal class TKRaceEngineer: NSObject {
 		do {
 			try AVAudioSession.sharedInstance().setCategory(.playback)
 			try AVAudioSession.sharedInstance().setActive(true)
-			radioSoundPlayer = try AVAudioPlayer(contentsOf: TKResources.resourceURL(named: "F1Radio", ofType: "wav"))
+			radioSoundPlayer = try AVAudioPlayer(contentsOf: TKResources.resourceURL(named: "F1Radio", ofType: .sound))
 			radioSoundPlayer.delegate = self
 		} catch let error {
 			print("🔕 Error while initializing F1 radio sound: \(error)")

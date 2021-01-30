@@ -25,6 +25,7 @@ public struct TKDriverCompactView: View {
 			Text(driver.driverId.trigram)
 			Text(driver.raceStatus.bestLapTime.asLapTimeString)
 		}
+		.font(.formula1Font(ofType: .regular, andSize: 14))
     }
 	
 }
