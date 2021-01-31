@@ -30,6 +30,7 @@ public struct TKDriverCompactView: View {
 	
 }
 
+#if DEBUG
 struct TKDriverCompactView_Previews: PreviewProvider {
 	
 	@State static var driver = TKParticipantInfo()
@@ -39,3 +40,4 @@ struct TKDriverCompactView_Previews: PreviewProvider {
 	}
 	
 }
+#endif

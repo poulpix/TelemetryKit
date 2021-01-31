@@ -32,6 +32,7 @@ public struct TKUInt64LabelView: View {
 	
 }
 
+#if DEBUG
 struct TKUInt64LabelView_Previews: PreviewProvider {
 	
 	static var previews: some View {
@@ -39,3 +40,4 @@ struct TKUInt64LabelView_Previews: PreviewProvider {
 	}
 	
 }
+#endif

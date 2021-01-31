@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+#if DEBUG
 public struct TKGenericPreview<V: View>: View {
 
 	private let viewToPreview: V
@@ -46,3 +47,4 @@ public struct TKGenericPreview<V: View>: View {
 	}
 	
 }
+#endif

@@ -32,6 +32,7 @@ public struct TKTextLabelView: View {
 	
 }
 
+#if DEBUG
 struct TKTextLabelView_Previews: PreviewProvider {
 	
 	static var previews: some View {
@@ -39,3 +40,4 @@ struct TKTextLabelView_Previews: PreviewProvider {
 	}
 	
 }
+#endif

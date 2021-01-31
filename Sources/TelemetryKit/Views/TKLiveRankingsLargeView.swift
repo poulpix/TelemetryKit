@@ -56,16 +56,19 @@ public struct TKLiveRankingsLargeView: View {
 					.padding(.trailing, 20)
 			}
 		}
+		.font(.formula1Font(ofType: .regular, andSize: 14))
     }
 	
 }
 
+#if DEBUG
 struct TKLiveRankingsLargeView_Previews: PreviewProvider {
 	
-	@State static var liveSessionInfo = TKLiveSessionInfo()
+	@State static var liveSessionInfo = TKTestObjects.testSession
 
     static var previews: some View {
-		TKLiveRankingsLargeView($liveSessionInfo)
+		TKGenericPreview(TKLiveRankingsLargeView($liveSessionInfo))
     }
 	
 }
+#endif

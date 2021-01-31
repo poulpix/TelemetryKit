@@ -35,6 +35,7 @@ public struct TKTyreCompoundView: View {
 	
 }
 
+#if DEBUG
 struct TKTyreCompoundView_Previews: PreviewProvider {
 	
     static var previews: some View {
@@ -55,3 +56,4 @@ struct TKTyreCompoundView_Previews: PreviewProvider {
     }
 	
 }
+#endif
