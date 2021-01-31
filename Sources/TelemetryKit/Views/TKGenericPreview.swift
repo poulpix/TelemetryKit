@@ -36,11 +36,11 @@ public struct TKGenericPreview<V: View>: View {
 				.preferredColorScheme(.dark)
 				.previewDisplayName("iPad Pro 11\" – Dark")
 			self.viewToPreview
-				.previewLayout(.fixed(width: 1920.0, height: 1200.0))
+				.previewDevice("Mac Catalyst")
 				.preferredColorScheme(.light)
 				.previewDisplayName("Mac Catalyst – Light")
 			self.viewToPreview
-				.previewLayout(.fixed(width: 1920.0, height: 1200.0))
+				.previewDevice("Mac Catalyst")
 				.preferredColorScheme(.dark)
 				.previewDisplayName("Mac Catalyst – Dark")
 		}

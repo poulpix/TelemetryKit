@@ -44,7 +44,7 @@ public struct TKTestObjects {
 		pVer.raceStatus = TKRaceStatusInfo()
 		pVer.raceStatus.currentPosition = 2
 		pVer.raceStatus.lastLapTime = 71.814
-		pVer.raceStatus.bestLapTime = 71.814
+		pVer.raceStatus.bestLapTime = 71.758
 		pVer.raceStatus.currentSector = .sector3
 		let verLap1 = TKLapTime()
 		var verLap2 = TKLapTime()

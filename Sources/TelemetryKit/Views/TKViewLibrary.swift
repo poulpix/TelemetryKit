@@ -19,8 +19,23 @@ struct TKViewLibrary: LibraryContentProvider {
 		LibraryItem(TKUInt8LabelView("Label:", data: .constant(123)), title: "Label with data (of UInt8 type)", category: .control)
 		LibraryItem(TKUInt64LabelView("Label:", data: .constant(1234)), title: "Label with data (of UInt64 type)", category: .control)
 		LibraryItem(TKDriverCompactView(TKDriverCompactView_Previews.$driver), title: "Represents a driver info (compact version)", category: .control)
-		LibraryItem(TKLiveRankingsLargeView(TKLiveRankingsLargeView_Previews.$liveSessionInfo), title: "Represents a live rankings view (large version)", category: .control)
+		LibraryItem(TKLiveRankingsRaceView(TKLiveRankingsRaceView_Previews.$liveSessionInfo), title: "Represents a live rankings view (race version)", category: .control)
 		LibraryItem(TKTyreCompoundView(.constant(.f1ModernSoft)), title: "Represents a tyre compound", category: .control)
 	}
  
+}
+
+enum TKScreenEstateStyle {
+	
+	case small
+	case medium
+	case large
+	
+	static let SMALL_ESTATE_THRESHOLD: CGFloat = 450
+	static let LARGE_ESTATE_THRESHOLD: CGFloat = 900
+	
+	static func screenEstate(forWidth width: CGFloat) -> TKScreenEstateStyle {
+		return ((width > TKScreenEstateStyle.LARGE_ESTATE_THRESHOLD) ? .large : ((width < TKScreenEstateStyle.SMALL_ESTATE_THRESHOLD) ? .small : .medium))
+	}
+	
 }
