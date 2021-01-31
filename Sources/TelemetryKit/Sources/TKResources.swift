@@ -213,6 +213,12 @@ public extension Color {
 
 	static let f1LightBlue = Color(UIColor.formula1LightBlue ?? .cyan)
 	
+	static let f1TimingPurple = Color(TKResources.color(named: "F1TimingPurple") ?? .purple)
+	
+	static let f1TimingGreen = Color(TKResources.color(named: "F1TimingGreen") ?? .green)
+	
+	static let f1TimingWhite = Color(TKResources.color(named: "F1TimingWhite") ?? .white)
+	
 	static var random = {
 		Color(UIColor.random)
 	}
@@ -284,12 +290,18 @@ public extension Color {
 
 	static let f1LightBlue = Color(NSColor.formula1LightBlue ?? .cyan)
 	
+	static let f1TimingPurple = Color(TKResources.color(named: "F1TimingPurple") ?? .purple)
+	
+	static let f1TimingGreen = Color(TKResources.color(named: "F1TimingGreen") ?? .green)
+	
+	static let f1TimingWhite = Color(TKResources.color(named: "F1TimingWhite") ?? .white)
+	
 	static var random = {
 		Color(NSColor.random)
 	}
 	
 	static func timingColor(purpleTime: Float32, isPersonnalBestTime: Bool, currentTime: Float32) -> Color {
-		return ((currentTime <= purpleTime) && (currentTime > 0)) ? Color(TKResources.color(named: "F1TimingPurple") ?? .purple) : isPersonnalBestTime ? Color(TKResources.color(named: "F1TimingGreen") ?? .green) : Color(TKResources.color(named: "F1TimingWhite") ?? .white)
+		return ((currentTime <= purpleTime) && (currentTime > 0)) ? .f1TimingPurple : isPersonnalBestTime ? .f1TimingGreen : .f1TimingWhite
 	}
 	
 }
