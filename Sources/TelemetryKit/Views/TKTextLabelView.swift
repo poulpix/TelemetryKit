@@ -11,7 +11,7 @@ import SwiftUI
 public struct TKTextLabelView: View {
 	
 	public var label: String
-	public var dataFormat: String = "%@"
+	public var dataFormat: String
 	@Binding public var data: String
 	
 	public init(_ label: String, dataFormat: String = "%@", data: Binding<String>) {
@@ -28,6 +28,8 @@ public struct TKTextLabelView: View {
 				.font(.formula1Font(ofType: .bold, andSize: 14))
 				.foregroundColor(.f1LightBlue)
 		}
+        .padding(.bottom, 2)
+        .padding(.top, 2)
 	}
 	
 }

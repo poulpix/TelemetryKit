@@ -1,5 +1,5 @@
 //
-//  SwiftUIView.swift
+//  TKNumericLabelView.swift
 //  TelemetryKit
 //
 //  Created by Romain on 03/01/2021.
@@ -8,15 +8,13 @@
 
 import SwiftUI
 
-public struct TKUInt64LabelView: View {
+public struct TKNumericLabelView<NumericType>: View where NumericType: CustomStringConvertible {
 	
 	public var label: String
-	public var dataFormat: String = "%d"
-	@Binding public var data: UInt64
+	@Binding public var data: NumericType
 	
-	public init(_ label: String, dataFormat: String = "%d", data: Binding<UInt64>) {
+	public init(_ label: String, data: Binding<NumericType>) {
 		self.label = label
-		self.dataFormat = dataFormat
 		self._data = data
 	}
 	
@@ -24,19 +22,21 @@ public struct TKUInt64LabelView: View {
 		HStack {
 			Text(label)
 				.font(.formula1Font(ofType: .regular, andSize: 14))
-			Text(String(format: dataFormat, data))
+            Text("\(data)" as String)
 				.font(.formula1Font(ofType: .bold, andSize: 14))
 				.foregroundColor(.f1LightBlue)
 		}
+        .padding(.bottom, 2)
+        .padding(.top, 2)
 	}
 	
 }
 
 #if DEBUG
-struct TKUInt64LabelView_Previews: PreviewProvider {
+struct TKNumericLabelView_Previews: PreviewProvider {
 	
 	static var previews: some View {
-		TKGenericPreview(TKUInt64LabelView("Label:", data: .constant(1234)))
+		TKGenericPreview(TKNumericLabelView("Label:", data: .constant(1234)))
 	}
 	
 }

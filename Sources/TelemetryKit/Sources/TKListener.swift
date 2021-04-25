@@ -112,6 +112,7 @@ extension TKListener: TKDelegate {
 	
 	func update(sessionInfo: TKSessionPacket) {
 		if sessionInfo.header.sessionUID != liveSessionInfo.sessionID {
+            //liveSessionInfo = TKLiveSessionInfo()
 			liveSessionInfo.sessionID = sessionInfo.header.sessionUID
 			liveSessionInfo.weather = sessionInfo.weather
 			liveSessionInfo.trackTemperature = sessionInfo.trackTemperature
@@ -122,7 +123,6 @@ extension TKListener: TKDelegate {
 			liveSessionInfo.trackId = sessionInfo.trackId
 			liveSessionInfo.formula = sessionInfo.formula
 			liveSessionInfo.duration = sessionInfo.sessionDuration
-			liveSessionInfo.timeLeft = sessionInfo.sessionTimeLeft
 			liveSessionInfo.pitSpeedLimit = sessionInfo.pitSpeedLimit
 			liveSessionInfo.isGamePaused = sessionInfo.gamePaused.opposite.boolValue
 			liveSessionInfo.marshalZones = sessionInfo.computedMarshalZones

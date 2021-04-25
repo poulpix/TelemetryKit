@@ -1,5 +1,5 @@
 //
-//  TKTelemetryBooleanLabelView.swift
+//  TKBooleanLabelView.swift
 //  TelemetryKit
 //
 //  Created by Romain on 03/01/2021.
@@ -26,6 +26,8 @@ public struct TKBooleanLabelView: View {
 				.font(.formula1Font(ofType: .bold, andSize: 14))
 				.foregroundColor(.f1LightBlue)
 		}
+        .padding(.bottom, 2)
+        .padding(.top, 2)
 	}
 	
 }

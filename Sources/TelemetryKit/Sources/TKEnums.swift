@@ -650,8 +650,24 @@ public enum TKInfringementType: UInt8 {
 	
 }
 
+public struct TKPlayerData {
+
+    public static var playerFirstName = TKListener.DEFAULT_PLAYER_FIRST_NAME
+    public static var playerFamilyName = TKListener.DEFAULT_PLAYER_FAMILY_NAME
+    public static var playerTrigram = TKListener.DEFAULT_PLAYER_TRIGRAM
+    public static var playerMyTeamName = TKListener.DEFAULT_MY_TEAM_NAME
+    
+    public static func set(firstName: String, familyName: String, trigram: String, myTeamName: String) {
+        playerFirstName = firstName
+        playerFamilyName = familyName
+        playerTrigram = trigram
+        playerMyTeamName = myTeamName
+    }
+    
+}
+
 public enum TKDriver: UInt8, CaseIterable {
-	
+
 	case carlosSainz
 	case daniilKvyat
 	case danielRicciardo
@@ -741,9 +757,9 @@ public enum TKDriver: UInt8, CaseIterable {
 	case pedroPiquet
 	case felipeDrugovich
 	case robertShwartzman
-	case royNissany
+    case localPlayer = 100 // RLT: added when debugging in My Team mode
 	case marinoSato
-	case localPlayer = 200 // RLT: 100 ?
+    case royNissany = 102 // RLT: Nissany unofficially documented as #100, but maybe not in My Team mode?
 	case unknownDriver = 254 // RLT: added to handle cases where team ID is not found in the enum
 	case onlinePlayer // RLT: added to handle multiplayer games
 	
@@ -937,7 +953,7 @@ extension TKDriver {
 			case .marinoSato:
 				return "Marino"
 			case .localPlayer:
-				return TKListener.DEFAULT_PLAYER_FIRST_NAME
+                return TKPlayerData.playerFirstName
 			case .unknownDriver:
 				return "Unknown"
 			case .onlinePlayer:
@@ -1134,7 +1150,7 @@ extension TKDriver {
 			case .marinoSato:
 				return "Sato"
 			case .localPlayer:
-				return TKListener.DEFAULT_PLAYER_FAMILY_NAME
+                return TKPlayerData.playerFamilyName
 			case .unknownDriver:
 				return "Driver"
 			case .onlinePlayer:
@@ -1157,7 +1173,7 @@ extension TKDriver {
 		get {
 			switch self {
 			case .localPlayer:
-				return TKListener.DEFAULT_PLAYER_TRIGRAM
+                return TKPlayerData.playerTrigram
 			case .unknownDriver:
 				return "???"
 			case .onlinePlayer:
@@ -1410,7 +1426,7 @@ extension TKTeam {
 		case .unknownTeam:
 			return "Unknown team"
 		case .myTeam:
-			return TKListener.DEFAULT_MY_TEAM_NAME
+            return TKPlayerData.playerMyTeamName
 		}
 	}
 	
