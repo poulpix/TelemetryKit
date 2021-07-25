@@ -217,7 +217,7 @@ public struct TKParticipantInfo {
 	public init() {
 		name = "???"
 		isAI = true
-		driverId = .localPlayer
+		driverId = .unknownDriver
 		teamId = .mercedes
 		raceNumber = 0
 		nationality = .unknown

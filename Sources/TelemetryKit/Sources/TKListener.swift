@@ -21,6 +21,7 @@ public class TKListener: NSObject {
 	
 	public static let shared = TKListener()
 	
+    public var telemetryVersion: TKF1Version
 	public var uiDelegate: TKUIDelegate?
 	public var voiceDelegate: TKVoiceDelegate?
 	public var acceptedPacketTypes: Set<TKPacketType>!
@@ -45,6 +46,7 @@ public class TKListener: NSObject {
     }
 	
 	private override init() {
+        telemetryVersion = .unknown
         liveSessionInfoQueue = DispatchQueue(label: "TKSessionLiveInfo")
 		_portNumber = TKListener.F1_2020_TELEMETRY_DEFAULT_PORT_NUMBER
 		super.init()
@@ -349,6 +351,36 @@ extension TKListener: TKDelegate {
 		print("💨 \(liveSessionInfo.driverName(forNo: driverNo)) triggered speed trap: \(speedTrap) kph")
 		uiDelegate?.driver(liveSessionInfo.driver(no: driverNo) ?? TKParticipantInfo(), triggeredSpeedTrap: speedTrap)
 	}
+    
+    func startLights(nbLights: UInt8) {
+        print("🔴 Number of start lights on: \(nbLights)")
+        uiDelegate?.startLights(nbLights)
+    }
+    
+    func lightsOut() {
+        print("🟢 It's lights out and away we go!")
+        uiDelegate?.lightsOut()
+    }
+    
+    func driverServedDriveThroughPenalty(no driverNo: UInt8) {
+        print("⚖️ \(liveSessionInfo.driverName(forNo: driverNo)) just served a drive-through penalty")
+        uiDelegate?.driverServedDriveThrougPenalty(liveSessionInfo.driver(no: driverNo) ?? TKParticipantInfo())
+    }
+    
+    func driverServedStopGoPenalty(no driverNo: UInt8) {
+        print("🚧 \(liveSessionInfo.driverName(forNo: driverNo)) just served a stop-go penalty")
+        uiDelegate?.driverServedStopGoPenalty(liveSessionInfo.driver(no: driverNo) ?? TKParticipantInfo())
+    }
+    
+    func flashbackUsed(frameID: UInt32, sessionTime: Float32) {
+        print("📸 Using flashback to go back to session time: \(sessionTime) (frame ID: \(frameID))")
+        uiDelegate?.flashbackUsed()
+    }
+    
+    func buttonsPressed(buttons: UInt32) {
+        print("🎮 Buttons pressed: \(buttons)")
+        uiDelegate?.buttonsPressed(buttons)
+    }
 	
 	func update(participants: [TKParticipantData]) {
 		let delta = liveSessionInfo.participants.count - participants.count
@@ -495,6 +527,15 @@ extension TKListener: TKDelegate {
 			}
 		}
 	}
+    
+    func update(carDamages: [TKCarDamageData]) {
+        for (i, cd) in carDamages.enumerated() {
+            if i < liveSessionInfo.participants.count {
+                let driver = liveSessionInfo.driver(no: UInt8(i)) ?? TKParticipantInfo()
+                //TODO similar to func update(carStatuses: [TKCarStatusData])
+            }
+        }
+    }
 	
 	func update(finalClassification: [TKFinalClassificationData]) {
 		print("🏁 Final classification revealed")

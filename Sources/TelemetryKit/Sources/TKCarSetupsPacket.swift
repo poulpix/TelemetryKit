@@ -10,7 +10,8 @@ import Foundation
 
 internal struct TKCarSetup: TKPacket {
 	
-	static let PACKET_SIZE = 49
+	static let PACKET_SIZE_F1_2020: Int = 49
+    static let PACKET_SIZE_F1_2021: Int = 49
 	
 	var frontWing: UInt8
 	var rearWing: UInt8
@@ -60,29 +61,34 @@ internal struct TKCarSetup: TKPacket {
 		fuelLoad = 0
 	}
 	
-	mutating func build(fromRawData data: Data, at offset: Int) {
-		frontWing = type(of: self).read(fromRawData: data, at: offset + 0)
-		rearWing = type(of: self).read(fromRawData: data, at: offset + 1)
-		onThrottle = type(of: self).read(fromRawData: data, at: offset + 2)
-		offThrottle = type(of: self).read(fromRawData: data, at: offset + 3)
-		frontCamber = type(of: self).read(fromRawData: data, at: offset + 4)
-		rearCamber = type(of: self).read(fromRawData: data, at: offset + 8)
-		frontToe = type(of: self).read(fromRawData: data, at: offset + 12)
-		rearToe = type(of: self).read(fromRawData: data, at: offset + 16)
-		frontSuspension = type(of: self).read(fromRawData: data, at: offset + 20)
-		rearSuspension = type(of: self).read(fromRawData: data, at: offset + 21)
-		frontAntiRollBar = type(of: self).read(fromRawData: data, at: offset + 22)
-		rearAntiRollBar = type(of: self).read(fromRawData: data, at: offset + 23)
-		frontSuspensionHeight = type(of: self).read(fromRawData: data, at: offset + 24)
-		rearSuspensionHeight = type(of: self).read(fromRawData: data, at: offset + 25)
-		brakePressure = type(of: self).read(fromRawData: data, at: offset + 26)
-		brakeBias = type(of: self).read(fromRawData: data, at: offset + 27)
-		rearLeftTyrePressure = type(of: self).read(fromRawData: data, at: offset + 28)
-		rearRightTyrePressure = type(of: self).read(fromRawData: data, at: offset + 32)
-		frontLeftTyrePressure = type(of: self).read(fromRawData: data, at: offset + 36)
-		frontRightTyrePressure = type(of: self).read(fromRawData: data, at: offset + 40)
-		ballast = type(of: self).read(fromRawData: data, at: offset + 44)
-		fuelLoad = type(of: self).read(fromRawData: data, at: offset + 45)
+	mutating func build(fromRawData data: Data, at offset: Int, forVersion version: TKF1Version) {
+        switch version {
+        case .unknown:
+            return
+        default:
+            frontWing = type(of: self).read(fromRawData: data, at: offset + 0)
+            rearWing = type(of: self).read(fromRawData: data, at: offset + 1)
+            onThrottle = type(of: self).read(fromRawData: data, at: offset + 2)
+            offThrottle = type(of: self).read(fromRawData: data, at: offset + 3)
+            frontCamber = type(of: self).read(fromRawData: data, at: offset + 4)
+            rearCamber = type(of: self).read(fromRawData: data, at: offset + 8)
+            frontToe = type(of: self).read(fromRawData: data, at: offset + 12)
+            rearToe = type(of: self).read(fromRawData: data, at: offset + 16)
+            frontSuspension = type(of: self).read(fromRawData: data, at: offset + 20)
+            rearSuspension = type(of: self).read(fromRawData: data, at: offset + 21)
+            frontAntiRollBar = type(of: self).read(fromRawData: data, at: offset + 22)
+            rearAntiRollBar = type(of: self).read(fromRawData: data, at: offset + 23)
+            frontSuspensionHeight = type(of: self).read(fromRawData: data, at: offset + 24)
+            rearSuspensionHeight = type(of: self).read(fromRawData: data, at: offset + 25)
+            brakePressure = type(of: self).read(fromRawData: data, at: offset + 26)
+            brakeBias = type(of: self).read(fromRawData: data, at: offset + 27)
+            rearLeftTyrePressure = type(of: self).read(fromRawData: data, at: offset + 28)
+            rearRightTyrePressure = type(of: self).read(fromRawData: data, at: offset + 32)
+            frontLeftTyrePressure = type(of: self).read(fromRawData: data, at: offset + 36)
+            frontRightTyrePressure = type(of: self).read(fromRawData: data, at: offset + 40)
+            ballast = type(of: self).read(fromRawData: data, at: offset + 44)
+            fuelLoad = type(of: self).read(fromRawData: data, at: offset + 45)
+        }
 	}
 	
 }
@@ -97,7 +103,8 @@ extension TKCarSetup: CustomStringConvertible {
 
 internal struct TKCarSetupsPacket: TKPacket {
 	
-	static let PACKET_SIZE = TKPacketHeader.PACKET_SIZE + (Self.DRIVERS_COUNT * TKCarSetup.PACKET_SIZE)
+    static let PACKET_SIZE_F1_2020: Int = TKPacketHeader.packetSize(forVersion: .f1_2020) + (Self.DRIVERS_COUNT * TKCarSetup.packetSize(forVersion: .f1_2020))
+    static let PACKET_SIZE_F1_2021: Int = TKPacketHeader.packetSize(forVersion: .f1_2021) + (Self.DRIVERS_COUNT * TKCarSetup.packetSize(forVersion: .f1_2021))
 	
 	var header: TKPacketHeader
 	var carSetups: [TKCarSetup] // 22
@@ -107,9 +114,14 @@ internal struct TKCarSetupsPacket: TKPacket {
 		carSetups = [TKCarSetup]()
 	}
 	
-	mutating func build(fromRawData data: Data, at offset: Int) {
-		header = TKPacketHeader.build(fromRawData: data)
-		carSetups = type(of: self).buildArray(ofSize: Self.DRIVERS_COUNT, fromRawData: data, at: TKPacketHeader.PACKET_SIZE + 0)
+	mutating func build(fromRawData data: Data, at offset: Int, forVersion version: TKF1Version) {
+		header = TKPacketHeader.build(fromRawData: data, forVersion: version)
+        switch version {
+        case .unknown:
+            return
+        default:
+            carSetups = type(of: self).buildArray(ofSize: Self.DRIVERS_COUNT, fromRawData: data, at: TKPacketHeader.packetSize(forVersion: version) + 0, forVersion: version)
+        }
 	}
 	
 }

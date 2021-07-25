@@ -28,6 +28,12 @@ internal protocol TKDelegate {
 	func driverRaceWinner(no driverNo: UInt8)
 	func driver(no driverNo: UInt8, gotPenalty penalty: TKPenaltyType, forInfringement infringement: TKInfringementType, onLapNo lapNo: UInt8)
 	func driver(no driverNo: UInt8, triggeredSpeedTrap speedTrap: Float32)
+    func startLights(nbLights: UInt8) // New in F1 2021
+    func lightsOut() // New in F1 2021
+    func driverServedDriveThroughPenalty(no driverNo: UInt8) // New in F1 2021
+    func driverServedStopGoPenalty(no driverNo: UInt8) // New in F1 2021
+    func flashbackUsed(frameID: UInt32, sessionTime: Float32)
+    func buttonsPressed(buttons: UInt32)
 	
 	// Participant-related messages
 	func update(participants: [TKParticipantData])
@@ -37,6 +43,9 @@ internal protocol TKDelegate {
 	
 	// Car status-related messages
 	func update(carStatuses: [TKCarStatusData])
+    
+    // Car damages-related messages
+    func update(carDamages: [TKCarDamageData])
 	
 	// Final classification-related messages
 	func update(finalClassification: [TKFinalClassificationData])
@@ -83,6 +92,12 @@ public protocol TKUIDelegate {
 	func driverRaceWinner(_ driver: TKParticipantInfo)
 	func driver(_ driver: TKParticipantInfo, gotPenalty penalty: TKPenaltyType, forInfringement infringement: TKInfringementType, onLapNo lapNo: UInt8)
 	func driver(_ driver: TKParticipantInfo, triggeredSpeedTrap speedTrap: Float32)
+    func startLights(_ nbLights: UInt8)
+    func lightsOut()
+    func driverServedDriveThrougPenalty(_ driver: TKParticipantInfo)
+    func driverServedStopGoPenalty(_ driver: TKParticipantInfo)
+    func flashbackUsed()
+    func buttonsPressed(_ buttons: UInt32)
 
 	// Car telemetry-related messages
 	func driver(_ driver: TKParticipantInfo, liveTelemetrySpeed speed: UInt16, throttle: Float32, steer: Float32, brake: Float32, clutch: UInt8, gear: Int8, engineRPM: UInt16, drs: Bool)

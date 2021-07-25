@@ -10,7 +10,8 @@ import Foundation
 
 internal struct TKCarTelemetryData: TKPacket {
 	
-	static let PACKET_SIZE = 58
+	static let PACKET_SIZE_F1_2020: Int = 58
+    static let PACKET_SIZE_F1_2021: Int = 60
 	
 	var speed: UInt16 // km/h
 	var throttle: Float32 // 0...1
@@ -21,6 +22,7 @@ internal struct TKCarTelemetryData: TKPacket {
 	var engineRPM: UInt16 // RPM
 	var drs: TKBool
 	var revLightsPercent: UInt8 // percentage
+    var revLightsBitValue: UInt16 // bit 0 = leftmost LED ; bit 14 = rightmost LED – New in F1 2021
 	var brakesTemperature: [UInt16] // 4 // °C
 	var tyresSurfaceTemperature: [UInt8] // 4 // °C
 	var tyresInnerTemperature: [UInt8] // 4 // °C
@@ -38,6 +40,7 @@ internal struct TKCarTelemetryData: TKPacket {
 		engineRPM = 0
 		drs = .no
 		revLightsPercent = 0
+        revLightsBitValue = 0
 		brakesTemperature = [UInt16]()
 		tyresSurfaceTemperature = [UInt8]()
 		tyresInnerTemperature = [UInt8]()
@@ -46,23 +49,46 @@ internal struct TKCarTelemetryData: TKPacket {
 		surfaceType = [TKDrivingSurface]()
 	}
 	
-	mutating func build(fromRawData data: Data, at offset: Int) {
-		speed = type(of: self).read(fromRawData: data, at: offset + 0)
-		throttle = type(of: self).read(fromRawData: data, at: offset + 2)
-		steer = type(of: self).read(fromRawData: data, at: offset + 6)
-		brake = type(of: self).read(fromRawData: data, at: offset + 10)
-		clutch = type(of: self).read(fromRawData: data, at: offset + 14)
-		gear = type(of: self).read(fromRawData: data, at: offset + 15)
-		engineRPM = type(of: self).read(fromRawData: data, at: offset + 16)
-		let tmpDRS: TKBool = type(of: self).readEnum(fromRawData: data, at: offset + 18)
-		drs = tmpDRS.opposite
-		revLightsPercent = type(of: self).read(fromRawData: data, at: offset + 19)
-		brakesTemperature = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 20)
-		tyresSurfaceTemperature = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 28)
-		tyresInnerTemperature = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 32)
-		engineTemperature = type(of: self).read(fromRawData: data, at: offset + 36)
-		tyresPressure = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 38)
-		surfaceType = type(of: self).readEnumArray(ofSize: 4, fromRawData: data, at: offset + 54)
+	mutating func build(fromRawData data: Data, at offset: Int, forVersion version: TKF1Version) {
+        switch version {
+        case .unknown:
+            return
+        case .f1_2020:
+            speed = type(of: self).read(fromRawData: data, at: offset + 0)
+            throttle = type(of: self).read(fromRawData: data, at: offset + 2)
+            steer = type(of: self).read(fromRawData: data, at: offset + 6)
+            brake = type(of: self).read(fromRawData: data, at: offset + 10)
+            clutch = type(of: self).read(fromRawData: data, at: offset + 14)
+            gear = type(of: self).read(fromRawData: data, at: offset + 15)
+            engineRPM = type(of: self).read(fromRawData: data, at: offset + 16)
+            let tmpDRS: TKBool = type(of: self).readEnum(fromRawData: data, at: offset + 18)
+            drs = tmpDRS.opposite
+            revLightsPercent = type(of: self).read(fromRawData: data, at: offset + 19)
+            brakesTemperature = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 20)
+            tyresSurfaceTemperature = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 28)
+            tyresInnerTemperature = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 32)
+            engineTemperature = type(of: self).read(fromRawData: data, at: offset + 36)
+            tyresPressure = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 38)
+            surfaceType = type(of: self).readEnumArray(ofSize: 4, fromRawData: data, at: offset + 54)
+        case .f1_2021:
+            speed = type(of: self).read(fromRawData: data, at: offset + 0)
+            throttle = type(of: self).read(fromRawData: data, at: offset + 2)
+            steer = type(of: self).read(fromRawData: data, at: offset + 6)
+            brake = type(of: self).read(fromRawData: data, at: offset + 10)
+            clutch = type(of: self).read(fromRawData: data, at: offset + 14)
+            gear = type(of: self).read(fromRawData: data, at: offset + 15)
+            engineRPM = type(of: self).read(fromRawData: data, at: offset + 16)
+            let tmpDRS: TKBool = type(of: self).readEnum(fromRawData: data, at: offset + 18)
+            drs = tmpDRS.opposite
+            revLightsPercent = type(of: self).read(fromRawData: data, at: offset + 19)
+            revLightsBitValue = type(of: self).read(fromRawData: data, at: offset + 20)
+            brakesTemperature = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 22)
+            tyresSurfaceTemperature = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 30)
+            tyresInnerTemperature = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 34)
+            engineTemperature = type(of: self).read(fromRawData: data, at: offset + 38)
+            tyresPressure = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 40)
+            surfaceType = type(of: self).readEnumArray(ofSize: 4, fromRawData: data, at: offset + 56)
+        }
 	}
 	
 }
@@ -77,14 +103,15 @@ extension TKCarTelemetryData: CustomStringConvertible {
 
 internal struct TKCarTelemetryPacket: TKPacket {
 	
-	static let PACKET_SIZE = TKPacketHeader.PACKET_SIZE + (Self.DRIVERS_COUNT * TKCarTelemetryData.PACKET_SIZE) + 7
+    static let PACKET_SIZE_F1_2020: Int = TKPacketHeader.packetSize(forVersion: .f1_2020) + (Self.DRIVERS_COUNT * TKCarTelemetryData.packetSize(forVersion: .f1_2020)) + 7
+    static let PACKET_SIZE_F1_2021: Int = TKPacketHeader.packetSize(forVersion: .f1_2021) + (Self.DRIVERS_COUNT * TKCarTelemetryData.packetSize(forVersion: .f1_2021)) + 3
 	
 	var header: TKPacketHeader
 	var carTelemetryData: [TKCarTelemetryData] // 22
-	var buttonStatus: UInt32 // binary composition of TKButtonFlags
+	var buttonStatus: UInt32 // binary composition of TKButtonFlags – Moved elsewhere in F1 2021
 	var mfdPanelIndex: TKMFDPanel
 	var mfdPanelIndexSecondaryPlayer: TKMFDPanel
-	var suggestedGear: Int8
+	var suggestedGear: Int8 // 0...8
 	
 	init() {
 		header = TKPacketHeader()
@@ -95,13 +122,23 @@ internal struct TKCarTelemetryPacket: TKPacket {
 		suggestedGear = 0
 	}
 	
-	mutating func build(fromRawData data: Data, at offset: Int) {
-		header = TKPacketHeader.build(fromRawData: data)
-		carTelemetryData = type(of: self).buildArray(ofSize: Self.DRIVERS_COUNT, fromRawData: data, at: TKPacketHeader.PACKET_SIZE + 0)
-		buttonStatus = type(of: self).read(fromRawData: data, at: TKPacketHeader.PACKET_SIZE + (Self.DRIVERS_COUNT * TKCarTelemetryData.PACKET_SIZE) + 0)
-		mfdPanelIndex = type(of: self).readEnum(fromRawData: data, at: TKPacketHeader.PACKET_SIZE + (Self.DRIVERS_COUNT * TKCarTelemetryData.PACKET_SIZE) + 4)
-		mfdPanelIndexSecondaryPlayer = type(of: self).readEnum(fromRawData: data, at: TKPacketHeader.PACKET_SIZE + (Self.DRIVERS_COUNT * TKCarTelemetryData.PACKET_SIZE) + 5)
-		mfdPanelIndex = type(of: self).readEnum(fromRawData: data, at: TKPacketHeader.PACKET_SIZE + (Self.DRIVERS_COUNT * TKCarTelemetryData.PACKET_SIZE) + 6)
+	mutating func build(fromRawData data: Data, at offset: Int, forVersion version: TKF1Version) {
+		header = TKPacketHeader.build(fromRawData: data, forVersion: version)
+        switch version {
+        case .unknown:
+            return
+        case .f1_2020:
+            carTelemetryData = type(of: self).buildArray(ofSize: Self.DRIVERS_COUNT, fromRawData: data, at: TKPacketHeader.packetSize(forVersion: version) + 0, forVersion: version)
+            buttonStatus = type(of: self).read(fromRawData: data, at: TKPacketHeader.packetSize(forVersion: version) + (Self.DRIVERS_COUNT * TKCarTelemetryData.packetSize(forVersion: version)) + 0)
+            mfdPanelIndex = type(of: self).readEnum(fromRawData: data, at: TKPacketHeader.packetSize(forVersion: version) + (Self.DRIVERS_COUNT * TKCarTelemetryData.packetSize(forVersion: version)) + 4)
+            mfdPanelIndexSecondaryPlayer = type(of: self).readEnum(fromRawData: data, at: TKPacketHeader.packetSize(forVersion: version) + (Self.DRIVERS_COUNT * TKCarTelemetryData.packetSize(forVersion: version)) + 5)
+            mfdPanelIndex = type(of: self).readEnum(fromRawData: data, at: TKPacketHeader.packetSize(forVersion: version) + (Self.DRIVERS_COUNT * TKCarTelemetryData.packetSize(forVersion: version)) + 6)
+        case .f1_2021:
+            carTelemetryData = type(of: self).buildArray(ofSize: Self.DRIVERS_COUNT, fromRawData: data, at: TKPacketHeader.packetSize(forVersion: version) + 0, forVersion: version)
+            mfdPanelIndex = type(of: self).readEnum(fromRawData: data, at: TKPacketHeader.packetSize(forVersion: version) + (Self.DRIVERS_COUNT * TKCarTelemetryData.packetSize(forVersion: version)) + 0)
+            mfdPanelIndexSecondaryPlayer = type(of: self).readEnum(fromRawData: data, at: TKPacketHeader.packetSize(forVersion: version) + (Self.DRIVERS_COUNT * TKCarTelemetryData.packetSize(forVersion: version)) + 1)
+            mfdPanelIndex = type(of: self).readEnum(fromRawData: data, at: TKPacketHeader.packetSize(forVersion: version) + (Self.DRIVERS_COUNT * TKCarTelemetryData.packetSize(forVersion: version)) + 2)
+        }
 	}
 	
 	func process(withDelegate delegate: TKDelegate) {

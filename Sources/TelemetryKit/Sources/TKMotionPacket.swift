@@ -10,7 +10,8 @@ import Foundation
 
 internal struct TKCarMotionData: TKPacket {
 	
-	static let PACKET_SIZE = 60
+	static let PACKET_SIZE_F1_2020: Int = 60
+    static let PACKET_SIZE_F1_2021: Int = 60
 	
 	var worldPositionX: Float32
 	var worldPositionY: Float32
@@ -52,25 +53,30 @@ internal struct TKCarMotionData: TKPacket {
 		roll = 0
 	}
 	
-	mutating func build(fromRawData data: Data, at offset: Int) {
-		worldPositionX = type(of: self).read(fromRawData: data, at: offset + 0)
-		worldPositionY = type(of: self).read(fromRawData: data, at: offset + 4)
-		worldPositionZ = type(of: self).read(fromRawData: data, at: offset + 8)
-		worldVelocityX = type(of: self).read(fromRawData: data, at: offset + 12)
-		worldVelocityY = type(of: self).read(fromRawData: data, at: offset + 16)
-		worldVelocityZ = type(of: self).read(fromRawData: data, at: offset + 20)
-		worldForwardDirX = type(of: self).read(fromRawData: data, at: offset + 24)
-		worldForwardDirY = type(of: self).read(fromRawData: data, at: offset + 26)
-		worldForwardDirZ = type(of: self).read(fromRawData: data, at: offset + 28)
-		worldRightDirX = type(of: self).read(fromRawData: data, at: offset + 30)
-		worldRightDirY = type(of: self).read(fromRawData: data, at: offset + 32)
-		worldRightDirZ = type(of: self).read(fromRawData: data, at: offset + 34)
-		gForceLateral = type(of: self).read(fromRawData: data, at: offset + 36)
-		gForceLongitudinal = type(of: self).read(fromRawData: data, at: offset + 40)
-		gForceVertical = type(of: self).read(fromRawData: data, at: offset + 44)
-		yaw = type(of: self).read(fromRawData: data, at: offset + 48) // radians
-		pitch = type(of: self).read(fromRawData: data, at: offset + 52) // radians
-		roll = type(of: self).read(fromRawData: data, at: offset + 56) // radians
+	mutating func build(fromRawData data: Data, at offset: Int, forVersion version: TKF1Version) {
+        switch version {
+        case .unknown:
+            return
+        default:
+            worldPositionX = type(of: self).read(fromRawData: data, at: offset + 0)
+            worldPositionY = type(of: self).read(fromRawData: data, at: offset + 4)
+            worldPositionZ = type(of: self).read(fromRawData: data, at: offset + 8)
+            worldVelocityX = type(of: self).read(fromRawData: data, at: offset + 12)
+            worldVelocityY = type(of: self).read(fromRawData: data, at: offset + 16)
+            worldVelocityZ = type(of: self).read(fromRawData: data, at: offset + 20)
+            worldForwardDirX = type(of: self).read(fromRawData: data, at: offset + 24)
+            worldForwardDirY = type(of: self).read(fromRawData: data, at: offset + 26)
+            worldForwardDirZ = type(of: self).read(fromRawData: data, at: offset + 28)
+            worldRightDirX = type(of: self).read(fromRawData: data, at: offset + 30)
+            worldRightDirY = type(of: self).read(fromRawData: data, at: offset + 32)
+            worldRightDirZ = type(of: self).read(fromRawData: data, at: offset + 34)
+            gForceLateral = type(of: self).read(fromRawData: data, at: offset + 36)
+            gForceLongitudinal = type(of: self).read(fromRawData: data, at: offset + 40)
+            gForceVertical = type(of: self).read(fromRawData: data, at: offset + 44)
+            yaw = type(of: self).read(fromRawData: data, at: offset + 48) // radians
+            pitch = type(of: self).read(fromRawData: data, at: offset + 52) // radians
+            roll = type(of: self).read(fromRawData: data, at: offset + 56) // radians
+        }
 	}
 	
 }
@@ -85,7 +91,8 @@ extension TKCarMotionData: CustomStringConvertible {
 
 internal struct TKMotionPacket: TKPacket {
 	
-	static var PACKET_SIZE: Int = TKPacketHeader.PACKET_SIZE + (Self.DRIVERS_COUNT * TKCarMotionData.PACKET_SIZE) + 120
+    static var PACKET_SIZE_F1_2020: Int = TKPacketHeader.packetSize(forVersion: .f1_2020) + (Self.DRIVERS_COUNT * TKCarMotionData.packetSize(forVersion: .f1_2020)) + 120
+    static var PACKET_SIZE_F1_2021: Int = TKPacketHeader.packetSize(forVersion: .f1_2021) + (Self.DRIVERS_COUNT * TKCarMotionData.packetSize(forVersion: .f1_2021)) + 120
 	
 	var header: TKPacketHeader
 	var carMotionData: [TKCarMotionData] // 22
@@ -125,25 +132,30 @@ internal struct TKMotionPacket: TKPacket {
 		frontWheelsAngle = 0
 	}
 	
-	mutating func build(fromRawData data: Data, at offset: Int = 0) {
-		header = TKPacketHeader.build(fromRawData: data)
-		carMotionData = type(of: self).buildArray(ofSize: Self.DRIVERS_COUNT, fromRawData: data, at: TKPacketHeader.PACKET_SIZE + 0)
-		let offset = TKPacketHeader.PACKET_SIZE + Self.DRIVERS_COUNT * TKCarMotionData.PACKET_SIZE
-		suspensionPosition = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 0)
-		suspensionVelocity = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 16)
-		suspensionAcceleration = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 32)
-		wheelSpeed = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 48)
-		wheelSlip = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 64)
-		localVelocityX = type(of: self).read(fromRawData: data, at: offset + 80)
-		localVelocityY = type(of: self).read(fromRawData: data, at: offset + 84)
-		localVelocityZ = type(of: self).read(fromRawData: data, at: offset + 88)
-		angularVelocityX = type(of: self).read(fromRawData: data, at: offset + 92)
-		angularVelocityX = type(of: self).read(fromRawData: data, at: offset + 96)
-		angularVelocityZ = type(of: self).read(fromRawData: data, at: offset + 100)
-		angularAccelerationX = type(of: self).read(fromRawData: data, at: offset + 104)
-		angularAccelerationY = type(of: self).read(fromRawData: data, at: offset + 108)
-		angularAccelerationZ = type(of: self).read(fromRawData: data, at: offset + 112)
-		frontWheelsAngle = type(of: self).read(fromRawData: data, at: offset + 116)
+	mutating func build(fromRawData data: Data, at offset: Int = 0, forVersion version: TKF1Version) {
+        header = TKPacketHeader.build(fromRawData: data, forVersion: version)
+        switch version {
+        case .unknown:
+            return
+        default:
+            carMotionData = type(of: self).buildArray(ofSize: Self.DRIVERS_COUNT, fromRawData: data, at: TKPacketHeader.packetSize(forVersion: version) + 0, forVersion: version)
+            let offset = TKPacketHeader.packetSize(forVersion: version) + Self.DRIVERS_COUNT * TKCarMotionData.packetSize(forVersion: version)
+            suspensionPosition = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 0)
+            suspensionVelocity = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 16)
+            suspensionAcceleration = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 32)
+            wheelSpeed = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 48)
+            wheelSlip = type(of: self).readArray(ofSize: 4, fromRawData: data, at: offset + 64)
+            localVelocityX = type(of: self).read(fromRawData: data, at: offset + 80)
+            localVelocityY = type(of: self).read(fromRawData: data, at: offset + 84)
+            localVelocityZ = type(of: self).read(fromRawData: data, at: offset + 88)
+            angularVelocityX = type(of: self).read(fromRawData: data, at: offset + 92)
+            angularVelocityX = type(of: self).read(fromRawData: data, at: offset + 96)
+            angularVelocityZ = type(of: self).read(fromRawData: data, at: offset + 100)
+            angularAccelerationX = type(of: self).read(fromRawData: data, at: offset + 104)
+            angularAccelerationY = type(of: self).read(fromRawData: data, at: offset + 108)
+            angularAccelerationZ = type(of: self).read(fromRawData: data, at: offset + 112)
+            frontWheelsAngle = type(of: self).read(fromRawData: data, at: offset + 116)
+        }
 	}
 	
 }

@@ -15,6 +15,31 @@ import UIKit
 import AppKit
 #endif
 
+public enum TKF1Version: UInt16 {
+    
+    case unknown = 0
+    case f1_2020 = 2020
+    case f1_2021
+    
+}
+
+extension TKF1Version {
+    
+    public var name: String {
+        get {
+            switch self {
+            case .unknown:
+                return "???"
+            case .f1_2020:
+                return "F1 2020"
+            case .f1_2021:
+                return "F1 2021"
+            }
+        }
+    }
+    
+}
+
 public enum TKBool: UInt8 {
 	
 	case yes
@@ -68,6 +93,8 @@ public enum TKPacketType: UInt8 {
 	case carStatus
 	case finalClassification
 	case lobbyInfo
+    case carDamage // New in F1 2021
+    case sessionHistory // New in F1 2021
 	
 }
 
@@ -204,6 +231,105 @@ extension TKSessionType {
 	
 }
 
+// New in F1 2021
+public enum TKMetricChange: Int8 {
+    
+    case up
+    case down
+    case noChange
+    
+}
+
+extension TKMetricChange {
+    
+    var name: String {
+        switch self {
+        case .up:
+            return "↗️"
+        case .down:
+            return "↘️"
+        case .noChange:
+            return "➡️"
+        }
+    }
+    
+}
+
+// New in F1 2021
+public enum TKBrakingAssistType: UInt8 {
+    
+    case off
+    case low
+    case medium
+    case high
+    
+}
+
+extension TKBrakingAssistType {
+    
+    var name: String {
+        switch self {
+        case .off:
+            return "⏹"
+        case .low:
+            return "🔽"
+        case .medium:
+            return "▶️"
+        case .high:
+            return "🔼"
+        }
+    }
+    
+}
+
+// New in F1 2021
+public enum TKGearboxAssistType: UInt8 {
+    
+    case manual = 1
+    case manualSuggestedGear
+    case auto
+    
+}
+
+extension TKGearboxAssistType {
+    
+    var name: String {
+        switch self {
+        case .manual:
+            return "🔴"
+        case .manualSuggestedGear:
+            return "🟠"
+        case .auto:
+            return "🟢"
+        }
+    }
+    
+}
+
+// New in F1 2021
+public enum TKDynamicRacingLineType: UInt8 {
+    
+    case off
+    case cornersOnly
+    case full
+    
+}
+
+extension TKDynamicRacingLineType {
+    
+    var name: String {
+        switch self {
+        case .off:
+            return "✖️"
+        case .cornersOnly:
+            return "➰"
+        case .full:
+            return "✔️"
+        }
+    }
+    
+}
+
 public enum TKTrack: Int8 {
 	
 	case unknown = -1
@@ -234,6 +360,9 @@ public enum TKTrack: Int8 {
 	case suzukaShort
 	case hanoi
 	case zandvoort
+    case imola // New in F1 2021
+    case portimao // New in F1 2021
+    case jeddah // New in F1 2021
 	
 }
 
@@ -297,6 +426,12 @@ extension TKTrack {
 			return "🇻🇳"
 		case .zandvoort:
 			return "🇳🇱"
+        case .imola:
+            return "🇮🇹"
+        case .portimao:
+            return "🇵🇹"
+        case .jeddah:
+            return "🇸🇦"
 		}
 	}
 	
@@ -358,6 +493,12 @@ extension TKTrack {
 			return "Hanoi"
 		case .zandvoort:
 			return "Zandvoort"
+        case .imola:
+            return "Imola"
+        case .portimao:
+            return "Portimāo"
+        case .jeddah:
+            return "Jeddah"
 		}
 	}
 	
@@ -406,7 +547,7 @@ public enum TKSafetyCarStatus: UInt8 {
 	case noSafetyCar
 	case fullSafetyCar
 	case virtualSafetyCar
-	case formationLap // RLT: added when debugging
+	case formationLap
 	
 }
 
@@ -497,10 +638,10 @@ public enum TKResultStatus: UInt8 {
 	case inactive
 	case active
 	case finished
+    case didNotFinish
 	case disqualified
 	case notClassified
 	case retired
-	case brokenCar // RLT: case no 7 added after debuggingf
 	
 }
 
@@ -516,14 +657,14 @@ extension TKResultStatus {
 			return "active"
 		case .finished:
 			return "finished"
+        case .didNotFinish:
+            return "did not finish"
 		case .disqualified:
 			return "disqualified"
 		case .notClassified:
 			return "not classified"
 		case .retired:
 			return "retired"
-		case .brokenCar:
-			return "broken car"
 		}
 	}
 	
@@ -570,10 +711,17 @@ internal enum TKEventCode: String {
 	case raceWinner = "RCWN"
 	case penaltyIssued = "PENA"
 	case speedTrapTriggered = "SPTP"
+    case startLights = "STLG" // New in F1 2021
+    case lightsOut = "LGOT" // New in F1 2021
+    case driveThroughServed = "DTSV" // New in F1 2021
+    case stopGoServed = "SGSV" // New in F1 2021
+    case flashback = "FLBK" // New in F1 2021
+    case buttonStatus = "BUTN" // New in F1 2021
 	
 }
 
 public enum TKPenaltyType: UInt8 {
+    
 	case driveThrough
 	case stopGo
 	case gridPenalty
@@ -592,9 +740,11 @@ public enum TKPenaltyType: UInt8 {
 	case thisAndPreviousLapInvalidatedWithoutReason
 	case retired
 	case blackFlagTimer
+    
 }
 
 public enum TKInfringementType: UInt8 {
+    
 	case blockingBySlowDriving
 	case blockingByWrongWayDriving
 	case reversingOffTheStartLine
@@ -671,6 +821,8 @@ public enum TKDriver: UInt8, CaseIterable {
 	case carlosSainz
 	case daniilKvyat
 	case danielRicciardo
+    case fernandoAlonso // New in F1 2021
+    case felipeMassa // New in F1 2021
 	case kimiRaikkonen = 6
 	case lewisHamilton
 	case maxVerstappen = 9
@@ -732,11 +884,13 @@ public enum TKDriver: UInt8, CaseIterable {
 	case rubenMeijer
 	case rashidNair
 	case jackTremblay
-	case devonButler // RLT: added when debugging
-	case lukasWeber // RLT: added when debugging
+	case devonButler
+	case lukasWeber
 	case antonioGiovinazzi
 	case robertKubica
-	case nobuharuMatsushita = 78
+    case alainProst // New in F1 2021
+    case ayrtonSenna // New in F1 2021
+	case nobuharuMatsushita
 	case nikitaMazepin
 	case guanyaZhou
 	case mickSchumacher
@@ -748,7 +902,8 @@ public enum TKDriver: UInt8, CaseIterable {
 	case anthoineHubert
 	case giulianoAlesi
 	case ralphBoschung
-	case danTicktum = 91
+    case michaelSchumacher // New in F1 2021
+	case danTicktum
 	case marcusArmstrong
 	case christianLundgaard
 	case yukiTsunoda
@@ -757,9 +912,13 @@ public enum TKDriver: UInt8, CaseIterable {
 	case pedroPiquet
 	case felipeDrugovich
 	case robertShwartzman
-    case localPlayer = 100 // RLT: added when debugging in My Team mode
-	case marinoSato
-    case royNissany = 102 // RLT: Nissany unofficially documented as #100, but maybe not in My Team mode?
+    case royNissany
+    case marinoSato
+    case aidenJackson // New in F1 2021
+    case casperAkkerman // New in F1 2021
+    case jensonButton = 109 // New in F1 2021
+    case davidCoulthard // New in F1 2021
+    case nicoRosberg // New in F1 2021
 	case unknownDriver = 254 // RLT: added to handle cases where team ID is not found in the enum
 	case onlinePlayer // RLT: added to handle multiplayer games
 	
@@ -776,6 +935,10 @@ extension TKDriver {
 				return "Daniil"
 			case .danielRicciardo:
 				return "Daniel"
+            case .fernandoAlonso:
+                return "Fernando"
+            case .felipeMassa:
+                return "Felipe"
 			case .kimiRaikkonen:
 				return "Kimi"
 			case .lewisHamilton:
@@ -906,6 +1069,10 @@ extension TKDriver {
 				return "Antonio"
 			case .robertKubica:
 				return "Robert"
+            case .alainProst:
+                return "Alain"
+            case .ayrtonSenna:
+                return "Ayrton"
 			case .nobuharuMatsushita:
 				return "Nobuharu"
 			case .nikitaMazepin:
@@ -930,6 +1097,8 @@ extension TKDriver {
 				return "Giuliano"
 			case .ralphBoschung:
 				return "Ralph"
+            case .michaelSchumacher:
+                return "Michael"
 			case .danTicktum:
 				return "Dan"
 			case .marcusArmstrong:
@@ -952,8 +1121,16 @@ extension TKDriver {
 				return "Roy"
 			case .marinoSato:
 				return "Marino"
-			case .localPlayer:
-                return TKPlayerData.playerFirstName
+            case .aidenJackson:
+                return "Aiden"
+            case .casperAkkerman:
+                return "Casper"
+            case .jensonButton:
+                return "Jenson"
+            case .davidCoulthard:
+                return "David"
+            case .nicoRosberg:
+                return "Nico"
 			case .unknownDriver:
 				return "Unknown"
 			case .onlinePlayer:
@@ -973,6 +1150,10 @@ extension TKDriver {
 				return "Kvyat"
 			case .danielRicciardo:
 				return "Ricciardo"
+            case .fernandoAlonso:
+                return "Alonso"
+            case .felipeMassa:
+                return "Massa"
 			case .kimiRaikkonen:
 				return "Raïkkönen"
 			case .lewisHamilton:
@@ -1103,6 +1284,10 @@ extension TKDriver {
 				return "Giovinazzi"
 			case .robertKubica:
 				return "Kubica"
+            case .alainProst:
+                return "Prost"
+            case .ayrtonSenna:
+                return "Senna"
 			case .nobuharuMatsushita:
 				return "Matsushita"
 			case .nikitaMazepin:
@@ -1127,6 +1312,8 @@ extension TKDriver {
 				return "Alesi"
 			case .ralphBoschung:
 				return "Boschung"
+            case .michaelSchumacher:
+                return "Schumacher"
 			case .danTicktum:
 				return "Ticktum"
 			case .marcusArmstrong:
@@ -1149,8 +1336,16 @@ extension TKDriver {
 				return "Nissany"
 			case .marinoSato:
 				return "Sato"
-			case .localPlayer:
-                return TKPlayerData.playerFamilyName
+            case .aidenJackson:
+                return "Jackson"
+            case .casperAkkerman:
+                return "Akkerman"
+            case .jensonButton:
+                return "Button"
+            case .davidCoulthard:
+                return "Coulthard"
+            case .nicoRosberg:
+                return "Rosberg"
 			case .unknownDriver:
 				return "Driver"
 			case .onlinePlayer:
@@ -1172,8 +1367,6 @@ extension TKDriver {
 	var trigram: String {
 		get {
 			switch self {
-			case .localPlayer:
-                return TKPlayerData.playerTrigram
 			case .unknownDriver:
 				return "???"
 			case .onlinePlayer:
@@ -1208,8 +1401,8 @@ public enum TKTeam: UInt8, CaseIterable {
 	case ferrari
 	case redBullRacing
 	case williams
-	case racingPoint
-	case renault
+	case astonMartin
+	case alpine
 	case alphaTauri
 	case haas
 	case mcLaren
@@ -1260,7 +1453,7 @@ public enum TKTeam: UInt8, CaseIterable {
 	case benetton1995
 	case ferrari2000
 	case jordan1991
-	case ferrari1990 = 63 // RLT: added those 3, which are missing from the docs
+	case ferrari1990 = 63 // RLT: added those 3, which are missing from the docs (in F1 2020)
 	case mclaren2010
 	case ferrari2010
     case artGrandPrix2020 = 70
@@ -1274,6 +1467,16 @@ public enum TKTeam: UInt8, CaseIterable {
     case trident2020
     case bwt2020
     case hitech2020
+    case mercedes2020 = 85 // New in F1 2021
+    case ferrari2020 // New in F1 2021
+    case redBullRacing2020 // New in F1 2021
+    case williams2020 // New in F1 2021
+    case racingPoint2020 // New in F1 2021
+    case renault2020 // New in F1 2021
+    case alphaTauri2020 // New in F1 2021
+    case haas2020 // New in F1 2021
+    case mcLaren2020 // New in F1 2021
+    case alfaRomeo2020 // New in F1 2021
 	case unknownTeam = 254 // RLT: added to handle cases where team ID is not found in the enum
 	case myTeam
 	
@@ -1281,7 +1484,7 @@ public enum TKTeam: UInt8, CaseIterable {
 
 extension TKTeam {
 	
-	var name: String {
+    var name: String {
 		switch self {
 		case .mercedes:
 			return "Mercedes"
@@ -1291,10 +1494,10 @@ extension TKTeam {
 			return "Red Bull Racing"
 		case .williams:
 			return "Williams"
-		case .racingPoint:
-			return "Racing Point"
-		case .renault:
-			return "Renault"
+		case .astonMartin:
+            return (TKListener.shared.telemetryVersion == .f1_2021) ? "Aston Martin" : "Racing Point"
+		case .alpine:
+            return (TKListener.shared.telemetryVersion == .f1_2021) ? "Alpine" : "Renault"
 		case .alphaTauri:
 			return "Alpha Tauri"
 		case .haas:
@@ -1423,14 +1626,34 @@ extension TKTeam {
             return "BWT HWA RACELAB"
         case .hitech2020:
             return "Hitech Grand Prix"
-		case .unknownTeam:
+        case .mercedes2020:
+            return "Mercedes"
+        case .ferrari2020:
+            return "Ferrari"
+        case .redBullRacing2020:
+            return "Red Bull Racing"
+        case .williams2020:
+            return "Williams"
+        case .racingPoint2020:
+            return "Racing Point"
+        case .renault2020:
+            return "Renault"
+        case .alphaTauri2020:
+            return "Alpha Tauri"
+        case .haas2020:
+            return "Haas"
+        case .mcLaren2020:
+            return "McLaren"
+        case .alfaRomeo2020:
+            return "Alfa Romeo"
+        case .unknownTeam:
 			return "Unknown team"
 		case .myTeam:
             return TKPlayerData.playerMyTeamName
 		}
 	}
 	
-	var audioName: String {
+    var audioName: String {
 		switch self {
 		case .mercedes:
 			return "Mercedes"
@@ -1440,10 +1663,10 @@ extension TKTeam {
 			return "Red Bulls"
 		case .williams:
 			return "Williams"
-		case .racingPoint:
-			return "Racing Points"
-		case .renault:
-			return "Renaults"
+        case .astonMartin:
+            return (TKListener.shared.telemetryVersion == .f1_2021) ? "Aston Martins" : "Racing Points"
+        case .alpine:
+            return (TKListener.shared.telemetryVersion == .f1_2021) ? "Alpines" : "Renaults"
 		case .alphaTauri:
 			return "Alpha Tauris"
 		case .haas:
@@ -1572,6 +1795,26 @@ extension TKTeam {
             return "BWTs"
         case .hitech2020:
             return "Hitech GPs"
+        case .mercedes2020:
+            return "Mercedes"
+        case .ferrari2020:
+            return "Ferraris"
+        case .redBullRacing2020:
+            return "Red Bulls"
+        case .williams2020:
+            return "Williams"
+        case .racingPoint2020:
+            return "Racing Points"
+        case .renault2020:
+            return "Renaults"
+        case .alphaTauri2020:
+            return "Alpha Tauris"
+        case .haas2020:
+            return "Haas"
+        case .mcLaren2020:
+            return "McLarens"
+        case .alfaRomeo2020:
+            return "Alfa Romeos"
         case .unknownTeam:
 			return "Unknowns"
 		case .myTeam:
@@ -1580,9 +1823,9 @@ extension TKTeam {
 	}
 	
 	#if os(iOS)
-	var color: UIColor {
+    var color: UIColor {
 		switch self {
-		case .mercedes, .ferrari, .ferrari1976, .ferrari1979, .ferrari1995, .ferrari2002, .ferrari2004, .ferrari2007, .redBullRacing, .redBullRacing2010, .williams, .williams1992, .williams1996, .williams2003, .racingPoint, .renault, .renault2006, .alphaTauri, .haas, .mcLaren, .mcLaren1976, .mcLaren1982, .mcLaren1988, .mcLaren1990, .mcLaren1991, .mcLaren1998, .mcLaren2008, .mclaren2010, .alfaRomeo, .brawn2009, .lotus1972, .lotus1978, .benetton1994, .benetton1995, .ferrari1990, .ferrari2000, .ferrari2010, .jordan1991, .myTeam:
+        case .mercedes, .ferrari, .ferrari1976, .ferrari1979, .ferrari1995, .ferrari2002, .ferrari2004, .ferrari2007, .redBullRacing, .redBullRacing2010, .williams, .williams1992, .williams1996, .williams2003, .astonMartin, .alpine, .renault2006, .alphaTauri, .haas, .mcLaren, .mcLaren1976, .mcLaren1982, .mcLaren1988, .mcLaren1990, .mcLaren1991, .mcLaren1998, .mcLaren2008, .mclaren2010, .alfaRomeo, .brawn2009, .lotus1972, .lotus1978, .benetton1994, .benetton1995, .ferrari1990, .ferrari2000, .ferrari2010, .mercedes2020, .ferrari2020, .redBullRacing2020, .williams2020, .racingPoint2020, .renault2020, .alphaTauri2020, .haas2020, .mcLaren2020, .alfaRomeo2020, .jordan1991, .myTeam:
 			return TKResources.color(named: "F1Team\(audioName.replacingOccurrences(of: " ", with: ""))") ?? .lightGray
         case .artGrandPrix, .bwtArden, .camposVexatecRacing, .carlin, .charouzRacingSystem, .dams, .mpMotorsport, .pertamina, .russianTime, .trident, .artGrandPrix2019, .campos2019, .carlin2019, .sauberJuniorCharouz2019, .dams2019, .uniVirtuosi2019, .mpMotorsport2019, .prema2019, .trident2019, .arden2019, .artGrandPrix2020, .campos2020, .carlin2020, .charouz2020, .dams2020, .uniVirtuosi2020, .mpMotorsport2020, .prema2020, .trident2020, .bwt2020, .hitech2020:
 			return TKResources.color(named: "F2Team\(audioName.replacingOccurrences(of: " ", with: ""))") ?? .lightGray
@@ -1593,12 +1836,12 @@ extension TKTeam {
 	#endif
 	
 	#if os(macOS)
-	var color: NSColor {
+    var color: NSColor {
 		switch self {
-		case .mercedes, .ferrari, .ferrari1976, .ferrari1979, .ferrari1995, .ferrari2002, .ferrari2004, .ferrari2007, .redBullRacing, .redBullRacing2010, .williams, .williams1992, .williams1996, .williams2003, .racingPoint, .renault, .renault2006, .alphaTauri, .haas, .mcLaren, .mcLaren1976, .mcLaren1982, .mcLaren1988, .mcLaren1990, .mcLaren1991, .mcLaren1998, .mcLaren2008, .mclaren2010, .alfaRomeo, .brawn2009, .lotus1972, .lotus1978, .benetton1994, .benetton1995, .ferrari1990, .ferrari2000, .ferrari2010, .jordan1991, .myTeam:
-			return TKResources.color(named: "F1Team\(audioName.replacingOccurrences(of: " ", with: ""))") ?? .lightGray
+        case .mercedes, .ferrari, .ferrari1976, .ferrari1979, .ferrari1995, .ferrari2002, .ferrari2004, .ferrari2007, .redBullRacing, .redBullRacing2010, .williams, .williams1992, .williams1996, .williams2003, .astonMartin, .alpine, .renault2006, .alphaTauri, .haas, .mcLaren, .mcLaren1976, .mcLaren1982, .mcLaren1988, .mcLaren1990, .mcLaren1991, .mcLaren1998, .mcLaren2008, .mclaren2010, .alfaRomeo, .brawn2009, .lotus1972, .lotus1978, .benetton1994, .benetton1995, .ferrari1990, .ferrari2000, .ferrari2010, .mercedes2020, .ferrari2020, .redBullRacing2020, .williams2020, .racingPoint2020, .renault2020, .alphaTauri2020, .haas2020, .mcLaren2020, .alfaRomeo2020, .jordan1991, .myTeam:
+			return TKResources.color(named: "F1Team\(audioName(fromVersion: version).replacingOccurrences(of: " ", with: ""))") ?? .lightGray
 		case .artGrandPrix, .bwtArden, .camposVexatecRacing, .carlin, .charouzRacingSystem, .dams, .mpMotorsport, .pertamina, .russianTime, .trident, .artGrandPrix2019, .campos2019, .carlin2019, .sauberJuniorCharouz2019, .dams2019, .uniVirtuosi2019, .mpMotorsport2019, .prema2019, .trident2019, .arden2019, .artGrandPrix2020, .campos2020, .carlin2020, .charouz2020, .dams2020, .uniVirtuosi2020, .mpMotorsport2020, .prema2020, .trident2020, .bwt2020, .hitech2020:
-			return TKResources.color(named: "F2Team\(audioName.replacingOccurrences(of: " ", with: ""))") ?? .lightGray
+			return TKResources.color(named: "F2Team\(audioName(fromVersion: version).replacingOccurrences(of: " ", with: ""))") ?? .lightGray
 		case .f1Generic, .unknownTeam:
 			return .darkGray
 		}
@@ -1668,7 +1911,6 @@ public enum TKNationality: UInt8 {
 	case monegasque
 	case newZealander
 	case nicaraguan
-	case northKorean
 	case northernIrish
 	case norwegian
 	case omani
@@ -1698,8 +1940,8 @@ public enum TKNationality: UInt8 {
 	case uruguayan
 	case ukrainian
 	case venezuelan
-	case welsh
 	case barbadian
+    case welsh
 	case vietnamese
 	
 }
@@ -1820,8 +2062,6 @@ extension TKNationality {
 			return "🇳🇿"
 		case .nicaraguan:
 			return "🇳🇮"
-		case .northKorean:
-			return "🇰🇵"
 		case .northernIrish:
 			return "🇬🇬" // RLT: not exactly the real northern Irish flag, which doesn't exist anymore
 		case .norwegian:
@@ -1880,10 +2120,10 @@ extension TKNationality {
 			return "🇺🇦"
 		case .venezuelan:
 			return "🇻🇪"
-		case .welsh:
-			return "🏴󠁧󠁢󠁷󠁬󠁳󠁿"
 		case .barbadian:
 			return "🇧🇧"
+        case .welsh:
+            return "🏴󠁧󠁢󠁷󠁬󠁳󠁿"
 		case .vietnamese:
 			return "🇻🇳"
 		}
@@ -1910,21 +2150,26 @@ internal enum TKDrivingSurface: UInt8 {
 
 internal enum TKButtonFlags: UInt32 {
 	
-	case a = 0x0001
-	case y = 0x0002
-	case b = 0x0004
-	case x = 0x0008
-	case left = 0x0010
-	case right = 0x0020
-	case up = 0x0040
-	case down = 0x0080
-	case menu = 0x0100
-	case lb = 0x0200
-	case rb = 0x0400
-	case lt = 0x0800
-	case rt = 0x1000
-	case leftStick = 0x2000
-	case rightStick = 0x4000
+	case a = 0x00000001
+	case y = 0x00000002
+	case b = 0x00000004
+	case x = 0x00000008
+	case left = 0x00000010
+	case right = 0x00000020
+	case up = 0x00000040
+	case down = 0x00000080
+	case menu = 0x00000100
+	case lb = 0x00000200
+	case rb = 0x00000400
+	case lt = 0x00000800
+	case rt = 0x00001000
+	case leftStick = 0x00002000
+	case rightStick = 0x00004000
+    case rightStickLeft = 0x00008000
+    case rightStickRight = 0x00010000
+    case rightStickUp = 0x00020000
+    case rightStickDown = 0x00040000
+    case special = 0x00080000
 	
 }
 
@@ -1943,7 +2188,7 @@ internal enum TKTractionControl: UInt8 {
 	
 	case off
 	case medium
-	case high
+	case full
 	
 }
 
@@ -1984,19 +2229,19 @@ public enum TKTyreVisualCompound: UInt8 {
 	case f1ModernWet
 	case f1ClassicDry
 	case f1ClassicWet
+	case f2SuperSoftOld // Removed in F1 2021
+	case f2SoftOld // Removed in F1 2021
+	case f2MediumOld // Removed in F1 2021
+	case f2HardOld // Removed in F1 2021
+	case f2WetOld // Removed in F1 2021
+	case f1ModernSoft
+	case f1ModernMedium
+	case f1ModernHard
 	case f2SuperSoft
 	case f2Soft
 	case f2Medium
 	case f2Hard
-	case f2Wet
-	case f1ModernSoft
-	case f1ModernMedium
-	case f1ModernHard
-	case f2SuperSoftTmp = 19 // RLT: added while debugging F2 races
-	case f2SoftTmp // RLT: added while debugging F2 races
-	case f2MediumTmp // RLT: added while debugging F2 races
-	case f2HardTmp // RLT: added while debugging F2 races
-	case f2WetTmp // RLT: added while debugging F2 races
+	case f2Wet // RLT: added while debugging F2 races (F1 2020)
 	
 }
 
@@ -2014,15 +2259,15 @@ extension TKTyreVisualCompound {
 			return "classic Dry"
 		case .f1ClassicWet:
 			return "classic Wet"
-		case .f2SuperSoft:
+        case .f2SuperSoft, .f2SuperSoftOld:
 			return "Super Softs (F2)"
-		case .f2Soft:
+        case .f2Soft, .f2SoftOld:
 			return "Softs (F2)"
-		case .f2Medium:
+        case .f2Medium, .f2MediumOld:
 			return "Mediums (F2)"
-		case .f2Hard:
+        case .f2Hard, .f2HardOld:
 			return "Hards (F2)"
-		case .f2Wet:
+        case .f2Wet, .f2WetOld:
 			return "Wet (F2)"
 		case .f1ModernSoft:
 			return "Softs (S)"
@@ -2030,16 +2275,6 @@ extension TKTyreVisualCompound {
 			return "Mediums (M)"
 		case .f1ModernHard:
 			return "Hards (H)"
-		case .f2SuperSoftTmp:
-			return "Super Softs (F2)"
-		case .f2SoftTmp:
-			return "Softs (F2)"
-		case .f2MediumTmp:
-			return "Mediums (F2)"
-		case .f2HardTmp:
-			return "Hards (F2)"
-		case .f2WetTmp:
-			return "Wet (F2)"
 		}
 	}
 	
@@ -2056,15 +2291,15 @@ extension TKTyreVisualCompound {
 				return "D"
 			case .f1ClassicWet:
 				return "R"
-			case .f2SuperSoft:
+            case .f2SuperSoft, .f2SuperSoftOld:
 				return "U"
-			case .f2Soft:
+            case .f2Soft, .f2SoftOld:
 				return "S"
-			case .f2Medium:
+            case .f2Medium, .f2MediumOld:
 				return "M"
-			case .f2Hard:
+            case .f2Hard, .f2HardOld:
 				return "H"
-			case .f2Wet:
+            case .f2Wet, .f2WetOld:
 				return "W"
 			case .f1ModernSoft:
 				return "S"
@@ -2072,16 +2307,6 @@ extension TKTyreVisualCompound {
 				return "M"
 			case .f1ModernHard:
 				return "H"
-			case .f2SuperSoftTmp:
-				return "U"
-			case .f2SoftTmp:
-				return "S"
-			case .f2MediumTmp:
-				return "M"
-			case .f2HardTmp:
-				return "H"
-			case .f2WetTmp:
-				return "W"
 			}
 		}
 		set {
@@ -2095,15 +2320,15 @@ extension TKTyreVisualCompound {
 				return .gray
 			case .f1ModernInter:
 				return Color(TKResources.color(named: "F1TyreIntermediate") ?? .green)
-			case .f1ModernWet, .f1ClassicWet, .f2Wet, .f2WetTmp:
+			case .f1ModernWet, .f1ClassicWet, .f2Wet, .f2WetOld:
 				return Color(TKResources.color(named: "F1TyreWet") ?? .blue)
-			case .f1ClassicDry, .f2Hard, .f1ModernHard, .f2HardTmp:
+			case .f1ClassicDry, .f2Hard, .f1ModernHard, .f2HardOld:
 				return Color(TKResources.color(named: "F1TyreHard") ?? .white)
-			case .f2SuperSoft, .f2SuperSoftTmp:
+			case .f2SuperSoft, .f2SuperSoftOld:
 				return Color(TKResources.color(named: "F1TyreUltraSoft") ?? .purple)
-			case .f2Soft, .f1ModernSoft, .f2SoftTmp:
+			case .f2Soft, .f1ModernSoft, .f2SoftOld:
 				return Color(TKResources.color(named: "F1TyreSoft") ?? .red)
-			case .f2Medium, .f1ModernMedium, .f2MediumTmp:
+			case .f2Medium, .f1ModernMedium, .f2MediumOld:
 				return Color(TKResources.color(named: "F1TyreMedium") ?? .yellow)
 			}
 		}

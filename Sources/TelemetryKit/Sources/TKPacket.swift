@@ -10,19 +10,21 @@ import Foundation
 
 internal protocol TKPacket: CustomStringConvertible {
 	
-	static var PACKET_SIZE: Int { get }
+	static var PACKET_SIZE_F1_2020: Int { get }
+    static var PACKET_SIZE_F1_2021: Int { get }
 	static var DRIVERS_COUNT: Int { get }
 	
 	var isValidPacket: Bool { get }
 	
 	init()
 	
-	mutating func build(fromRawData data: Data, at offset: Int)
+    mutating func build(fromRawData data: Data, at offset: Int, forVersion version: TKF1Version)
 	func process(withDelegate delegate: TKDelegate)
-	static func build(fromRawData data: Data, at offset: Int) -> Self
-	static func build<T: TKPacket>(fromRawData data: Data, at offset: Int) -> T
-	static func buildArray(ofSize size: Int, fromRawData data: Data, at offset: Int) -> [Self]
+	static func build(fromRawData data: Data, at offset: Int, forVersion version: TKF1Version) -> Self
+	static func build<T: TKPacket>(fromRawData data: Data, at offset: Int, forVersion version: TKF1Version) -> T
+	static func buildArray(ofSize size: Int, fromRawData data: Data, at offset: Int, forVersion version: TKF1Version) -> [Self]
 	static func read<T: Numeric>(fromRawData data: Data, at position: Int) -> T
+    static func readEnum<E: RawRepresentable>(fromRawData data: Data, at position: Int) -> E where E.RawValue == UInt16
 	static func readEnum<E: RawRepresentable>(fromRawData data: Data, at position: Int) -> E where E.RawValue == UInt8
 	static func readEnum<E: RawRepresentable>(fromRawData data: Data, at position: Int) -> E where E.RawValue == Int8
 	static func readArray<T: Numeric>(ofSize size: Int, fromRawData data: Data, at position: Int) -> [T]
@@ -36,7 +38,7 @@ internal extension TKPacket {
 	static var DRIVERS_COUNT: Int {
 		return 22
 	}
-	
+
 	var isValidPacket: Bool {
 		return true
 	}
@@ -44,25 +46,36 @@ internal extension TKPacket {
 	func process(withDelegate delegate: TKDelegate) {
 	}
 	
-	static func build(fromRawData data: Data, at offset: Int = 0) -> Self {
-		var packet = Self()
-		packet.build(fromRawData: data, at: offset)
+    static func packetSize(forVersion version: TKF1Version) -> Int {
+        switch version {
+        case .unknown:
+            return 0
+        case .f1_2020:
+            return PACKET_SIZE_F1_2020
+        case .f1_2021:
+            return PACKET_SIZE_F1_2021
+        }
+    }
+    
+    static func build(fromRawData data: Data, at offset: Int = 0, forVersion version: TKF1Version) -> Self {
+        var packet = Self()
+        packet.build(fromRawData: data, at: offset, forVersion: version)
 		return packet
 	}
 	
-	static func build<T: TKPacket>(fromRawData data: Data, at offset: Int = 0) -> T {
+	static func build<T: TKPacket>(fromRawData data: Data, at offset: Int = 0, forVersion version: TKF1Version) -> T {
 		var packet = T()
-		packet.build(fromRawData: data, at: offset)
+		packet.build(fromRawData: data, at: offset, forVersion: version)
 		return packet
 	}
 
-	static func buildArray<T: TKPacket>(ofSize size: Int, fromRawData data: Data, at offset: Int) -> [T] {
+	static func buildArray<T: TKPacket>(ofSize size: Int, fromRawData data: Data, at offset: Int, forVersion version: TKF1Version) -> [T] {
 		var o = offset
 		var result = [T]()
 		while result.count < size {
-			let packet = T.build(fromRawData: data, at: o)
+			let packet = T.build(fromRawData: data, at: o, forVersion: version)
 			result.append(packet)
-			o += T.PACKET_SIZE
+			o += packetSize(forVersion: version)
 		}
 		return result
 	}
@@ -72,7 +85,11 @@ internal extension TKPacket {
 		(data as NSData).getBytes(&value, range: NSMakeRange(position, MemoryLayout<T>.size))
 		return value
 	}
-	
+
+    static func readEnum<E: RawRepresentable>(fromRawData data: Data, at position: Int) -> E where E.RawValue == UInt16 {
+        return E(rawValue: read(fromRawData: data, at: position))!
+    }
+
 	static func readEnum<E: RawRepresentable>(fromRawData data: Data, at position: Int) -> E where E.RawValue == UInt8 {
 		return E(rawValue: read(fromRawData: data, at: position))!
 	}

@@ -174,7 +174,7 @@ internal class TKRaceEngineer: NSObject {
 			}
 			delegate?.playerAskedFor(driverInfo: driver)
 		case .teamInfo:
-			guard let teamName = response.firstEntity(ofType: .team), let team = TKTeam.team(withFullName: teamName.identifier) else {
+            guard let teamName = response.firstEntity(ofType: .team), let team = TKTeam.team(withFullName: teamName.identifier) else {
 				throw TKLUISError.intentHandlingError(intent: response.topScoringIntent.intent)
 			}
 			delegate?.playerAskedFor(teamInfo: team)
