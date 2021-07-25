@@ -239,7 +239,7 @@ public extension NSFont {
 
 	static fileprivate func registerFont(named fontName: String) throws {
 		do {
-			let fontURL = try TKResources.resourceURL(named: fontName, ofType: "otf")
+            let fontURL = try TKResources.resourceURL(named: fontName, ofType: .font)
 			let fontData = try Data(contentsOf: fontURL)
 			let dataProvider = CGDataProvider(data: fontData as CFData)!
 			let fontRef = CGFont(dataProvider)
@@ -309,12 +309,23 @@ public extension Color {
 
 public extension Font {
 	
+    #if os(iOS)
 	static func formula1Font(ofType fontType: TKFormula1FontType = .regular, andSize fontSize: CGFloat = 12) -> Font {
 		if !UIFont.familyNames.contains("Formula1") {
 			TKResources.loadAllFonts()
 		}
 		return Font.custom(fontType.rawValue, size: fontSize)
 	}
+    #endif
+    
+    #if os(macOS)
+    static func formula1Font(ofType fontType: TKFormula1FontType = .regular, andSize fontSize: CGFloat = 12) -> Font {
+        if !NSFontManager.shared.availableFontFamilies.contains("Formula1") {
+            TKResources.loadAllFonts()
+        }
+        return Font.custom(fontType.rawValue, size: fontSize)
+    }
+    #endif
 	
 }
 

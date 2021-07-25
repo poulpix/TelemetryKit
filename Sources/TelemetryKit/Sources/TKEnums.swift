@@ -1839,9 +1839,9 @@ extension TKTeam {
     var color: NSColor {
 		switch self {
         case .mercedes, .ferrari, .ferrari1976, .ferrari1979, .ferrari1995, .ferrari2002, .ferrari2004, .ferrari2007, .redBullRacing, .redBullRacing2010, .williams, .williams1992, .williams1996, .williams2003, .astonMartin, .alpine, .renault2006, .alphaTauri, .haas, .mcLaren, .mcLaren1976, .mcLaren1982, .mcLaren1988, .mcLaren1990, .mcLaren1991, .mcLaren1998, .mcLaren2008, .mclaren2010, .alfaRomeo, .brawn2009, .lotus1972, .lotus1978, .benetton1994, .benetton1995, .ferrari1990, .ferrari2000, .ferrari2010, .mercedes2020, .ferrari2020, .redBullRacing2020, .williams2020, .racingPoint2020, .renault2020, .alphaTauri2020, .haas2020, .mcLaren2020, .alfaRomeo2020, .jordan1991, .myTeam:
-			return TKResources.color(named: "F1Team\(audioName(fromVersion: version).replacingOccurrences(of: " ", with: ""))") ?? .lightGray
+			return TKResources.color(named: "F1Team\(audioName.replacingOccurrences(of: " ", with: ""))") ?? .lightGray
 		case .artGrandPrix, .bwtArden, .camposVexatecRacing, .carlin, .charouzRacingSystem, .dams, .mpMotorsport, .pertamina, .russianTime, .trident, .artGrandPrix2019, .campos2019, .carlin2019, .sauberJuniorCharouz2019, .dams2019, .uniVirtuosi2019, .mpMotorsport2019, .prema2019, .trident2019, .arden2019, .artGrandPrix2020, .campos2020, .carlin2020, .charouz2020, .dams2020, .uniVirtuosi2020, .mpMotorsport2020, .prema2020, .trident2020, .bwt2020, .hitech2020:
-			return TKResources.color(named: "F2Team\(audioName(fromVersion: version).replacingOccurrences(of: " ", with: ""))") ?? .lightGray
+			return TKResources.color(named: "F2Team\(audioName.replacingOccurrences(of: " ", with: ""))") ?? .lightGray
 		case .f1Generic, .unknownTeam:
 			return .darkGray
 		}
