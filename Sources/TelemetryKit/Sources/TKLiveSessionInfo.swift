@@ -169,6 +169,18 @@ public extension UInt16 {
 		let (h, m, s) = (Int(f / 3600), Int(f.truncatingRemainder(dividingBy: 3600) / 60), Int(f.truncatingRemainder(dividingBy: 3600).truncatingRemainder(dividingBy: 60)))
 		return "\(h):\(String(format: "%02d", m)):\(String(format: "%02d", s))"
 	}
+    
+    var asSectorTimeString: String {
+        return Float32(self / 1000).asSectorTimeString
+    }
+
+}
+
+public extension UInt32 {
+    
+    var asLapTimeString: String {
+        return Float32(self / 1000).asLapTimeString
+    }
 
 }
 
@@ -262,11 +274,19 @@ public struct TKCarStatusInfo {
 	public var frontRightTyreDamage: UInt8
 	public var rearLeftTyreDamage: UInt8
 	public var rearRightTyreDamage: UInt8
+    public var frontLeftBrakeDamage: UInt8
+    public var frontRightBrakeDamage: UInt8
+    public var rearLeftBrakeDamage: UInt8
+    public var rearRightBrakeDamage: UInt8
 	public var frontLeftWingDamage: UInt8
 	public var frontRightWingDamage: UInt8
 	public var rearWingDamage: UInt8
+    public var floorDamage: UInt8
+    public var diffuserDamage: UInt8
+    public var sidepodDamage: UInt8
+    public var drsFault: Bool
+    public var gearBoxDamage: UInt8
 	public var engineDamage: UInt8
-	public var gearBoxDamage: UInt8
 	
 	public init() {
 		fuelMix = .standard
@@ -277,18 +297,26 @@ public struct TKCarStatusInfo {
 		frontRightTyreDamage = 0
 		rearLeftTyreDamage = 0
 		rearRightTyreDamage = 0
+        frontLeftBrakeDamage = 0
+        frontRightBrakeDamage = 0
+        rearLeftBrakeDamage = 0
+        rearRightBrakeDamage = 0
 		frontLeftWingDamage = 0
 		frontRightWingDamage = 0
 		rearWingDamage = 0
+        floorDamage = 0
+        diffuserDamage = 0
+        sidepodDamage = 0
+        drsFault = false
+        gearBoxDamage = 0
 		engineDamage = 0
-		gearBoxDamage = 0
 	}
 	
 }
 
 extension TKCarStatusInfo: CustomStringConvertible {
 	
-	public var description: String { "📊 Car status: fuel mix = \(fuelMix), tyre compound = \(tyreCompound.name), ERS = \(ersDeployMode), flags = \(vehicleFlags)\n🛠 Damages: FL tyre: \(frontLeftTyreDamage), FR tyre: \(frontRightTyreDamage), RL tyre: \(rearLeftTyreDamage), RR tyre: \(rearRightTyreDamage), FL wing: \(frontLeftWingDamage), FR wing: \(frontRightWingDamage), R wing: \(rearWingDamage), engine: \(engineDamage), gearbox: \(gearBoxDamage)" }
+	public var description: String { "📊 Car status: fuel mix = \(fuelMix), tyre compound = \(tyreCompound.name), ERS = \(ersDeployMode), flags = \(vehicleFlags)\n🛠 Damages: FL tyre: \(frontLeftTyreDamage), FR tyre: \(frontRightTyreDamage), RL tyre: \(rearLeftTyreDamage), RR tyre: \(rearRightTyreDamage), FL brake: \(frontLeftBrakeDamage), FR brake: \(frontRightBrakeDamage), RL brake: \(rearLeftBrakeDamage), RR brake: \(rearRightBrakeDamage), FL wing: \(frontLeftWingDamage), FR wing: \(frontRightWingDamage), R wing: \(rearWingDamage), floor: \(floorDamage), diffuser: \(diffuserDamage), sidepod: \(sidepodDamage), DRS: \(drsFault), gearbox: \(gearBoxDamage), engine: \(engineDamage)" }
 	
 }
 
@@ -343,6 +371,9 @@ public struct TKRaceStatusInfo {
 	}
 	
 	public mutating func set(lapTime: Float32, forLapNo lapNo: UInt8) {
+        if lapNo == 0 {
+            return
+        }
 		ensureIsAvailable(lapNo: lapNo)
 		lapTimes[Int(lapNo) - 1].lapTime = lapTime
 		if lapTime < bestLapTime {

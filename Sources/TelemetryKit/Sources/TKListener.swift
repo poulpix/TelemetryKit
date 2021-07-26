@@ -50,8 +50,8 @@ public class TKListener: NSObject {
         liveSessionInfoQueue = DispatchQueue(label: "TKSessionLiveInfo")
 		_portNumber = TKListener.F1_2020_TELEMETRY_DEFAULT_PORT_NUMBER
 		super.init()
+        acceptedPacketTypes = Set()
 		delegate = self
-		setAcceptedPacketTypes(arrayLiteral: .carStatus, .event, .finalClassification, .lapData, .participants, .session)
 		liveSessionInfo = TKLiveSessionInfo()
 		_raceEngineer = TKRaceEngineer()
 		_raceEngineer.delegate = self
@@ -62,8 +62,12 @@ public class TKListener: NSObject {
 			}
 		})
 	}
+    
+    public func subscribeToAllPacketTypes() {
+        acceptedPacketTypes = Set(TKPacketType.allCases)
+    }
 	
-	@inlinable public func setAcceptedPacketTypes(arrayLiteral: TKPacketType...) {
+    @inlinable public func subscribeTo(packetTypes arrayLiteral: TKPacketType...) {
 		acceptedPacketTypes = Set(arrayLiteral)
 	}
 	
@@ -99,10 +103,18 @@ extension TKListener: GCDAsyncUdpSocketDelegate {
 			return
 		}
 		let header = TKPacketHeader.build(fromRawData: data)
+//        #if DEBUG
+//        var s = ""
+//        for b in data {
+//            s += "\(b)".padding(toLength: 3, withPad: "0", startingAt: 0) + " "
+//        }
+//        print("\(header.packetFormat) – \(header.packetId) – \(data.count)")
+//        print(s)
+//        #endif
 		if acceptedPacketTypes.contains(header.packetId) {
-			header.processFullPacket(withRawData: data, andDelegate: delegate)
+            header.processFullPacket(withRawData: data, andDelegate: delegate)
 		} else {
-			#if TRACE
+			#if DEBUG
 			print("🗑 Dropping packet of type: \(header.packetId)")
 			#endif
 		}
@@ -452,38 +464,40 @@ extension TKListener: TKDelegate {
 						uiDelegate?.driver(driver, flagStatusChangedFrom: oldFlags, to: cs.vehicleFIAFlags)
 					}
 				}
-				if liveSessionInfo.participants[i].carStatus.frontLeftTyreDamage != cs.tyresDamage[2] {
-					let oldFLTyreDamage = liveSessionInfo.participants[i].carStatus.frontLeftTyreDamage
-					liveSessionInfo.participants[i].carStatus.frontLeftTyreDamage = cs.tyresDamage[2]
-					if TKListener.isSignificantDamageDiff(from: oldFLTyreDamage, to: cs.tyresDamage[2]) {
-						print("🛠 \(driver.name)'s front left tyre damage level has changed from \(oldFLTyreDamage) to \(cs.tyresDamage[2])")
-						uiDelegate?.driver(driver, frontLeftTyreDamageChangedFrom: oldFLTyreDamage, to: cs.tyresDamage[2])
-					}
-				}
-				if liveSessionInfo.participants[i].carStatus.frontRightTyreDamage != cs.tyresDamage[3] {
-					let oldFRTyreDamage = liveSessionInfo.participants[i].carStatus.frontRightTyreDamage
-					liveSessionInfo.participants[i].carStatus.frontRightTyreDamage = cs.tyresDamage[3]
-					if TKListener.isSignificantDamageDiff(from: oldFRTyreDamage, to: cs.tyresDamage[3]) {
-						print("🛠 \(driver.name)'s front right tyre damage level has changed from \(oldFRTyreDamage) to \(cs.tyresDamage[3])")
-						uiDelegate?.driver(driver, frontRightTyreDamageChangedFrom: oldFRTyreDamage, to: cs.tyresDamage[3])
-					}
-				}
-				if liveSessionInfo.participants[i].carStatus.rearLeftTyreDamage != cs.tyresDamage[0] {
-					let oldRLTyreDamage = liveSessionInfo.participants[i].carStatus.rearLeftTyreDamage
-					liveSessionInfo.participants[i].carStatus.rearLeftTyreDamage = cs.tyresDamage[0]
-					if TKListener.isSignificantDamageDiff(from: oldRLTyreDamage, to: cs.tyresDamage[0]) {
-						print("🛠 \(driver.name)'s rear left tyre damage level has changed from \(oldRLTyreDamage) to \(cs.tyresDamage[0])")
-						uiDelegate?.driver(driver, rearLeftTyreDamageChangedFrom: oldRLTyreDamage, to: cs.tyresDamage[0])
-					}
-				}
-				if liveSessionInfo.participants[i].carStatus.rearRightTyreDamage != cs.tyresDamage[1] {
-					let oldRRTyreDamage = liveSessionInfo.participants[i].carStatus.rearRightTyreDamage
-					liveSessionInfo.participants[i].carStatus.rearRightTyreDamage = cs.tyresDamage[1]
-					if TKListener.isSignificantDamageDiff(from: oldRRTyreDamage, to: cs.tyresDamage[1]) {
-						print("🛠 \(driver.name)'s rear right tyre damage level has changed from \(oldRRTyreDamage) to \(cs.tyresDamage[1])")
-						uiDelegate?.driver(driver, rearRightTyreDamageChangedFrom: oldRRTyreDamage, to: cs.tyresDamage[1])
-					}
-				}
+                if (cs.tyresDamage.count == 4) {
+                    if liveSessionInfo.participants[i].carStatus.frontLeftTyreDamage != cs.tyresDamage[2] {
+                        let oldFLTyreDamage = liveSessionInfo.participants[i].carStatus.frontLeftTyreDamage
+                        liveSessionInfo.participants[i].carStatus.frontLeftTyreDamage = cs.tyresDamage[2]
+                        if TKListener.isSignificantDamageDiff(from: oldFLTyreDamage, to: cs.tyresDamage[2]) {
+                            print("🛠 \(driver.name)'s front left tyre damage level has changed from \(oldFLTyreDamage) to \(cs.tyresDamage[2])")
+                            uiDelegate?.driver(driver, frontLeftTyreDamageChangedFrom: oldFLTyreDamage, to: cs.tyresDamage[2])
+                        }
+                    }
+                    if liveSessionInfo.participants[i].carStatus.frontRightTyreDamage != cs.tyresDamage[3] {
+                        let oldFRTyreDamage = liveSessionInfo.participants[i].carStatus.frontRightTyreDamage
+                        liveSessionInfo.participants[i].carStatus.frontRightTyreDamage = cs.tyresDamage[3]
+                        if TKListener.isSignificantDamageDiff(from: oldFRTyreDamage, to: cs.tyresDamage[3]) {
+                            print("🛠 \(driver.name)'s front right tyre damage level has changed from \(oldFRTyreDamage) to \(cs.tyresDamage[3])")
+                            uiDelegate?.driver(driver, frontRightTyreDamageChangedFrom: oldFRTyreDamage, to: cs.tyresDamage[3])
+                        }
+                    }
+                    if liveSessionInfo.participants[i].carStatus.rearLeftTyreDamage != cs.tyresDamage[0] {
+                        let oldRLTyreDamage = liveSessionInfo.participants[i].carStatus.rearLeftTyreDamage
+                        liveSessionInfo.participants[i].carStatus.rearLeftTyreDamage = cs.tyresDamage[0]
+                        if TKListener.isSignificantDamageDiff(from: oldRLTyreDamage, to: cs.tyresDamage[0]) {
+                            print("🛠 \(driver.name)'s rear left tyre damage level has changed from \(oldRLTyreDamage) to \(cs.tyresDamage[0])")
+                            uiDelegate?.driver(driver, rearLeftTyreDamageChangedFrom: oldRLTyreDamage, to: cs.tyresDamage[0])
+                        }
+                    }
+                    if liveSessionInfo.participants[i].carStatus.rearRightTyreDamage != cs.tyresDamage[1] {
+                        let oldRRTyreDamage = liveSessionInfo.participants[i].carStatus.rearRightTyreDamage
+                        liveSessionInfo.participants[i].carStatus.rearRightTyreDamage = cs.tyresDamage[1]
+                        if TKListener.isSignificantDamageDiff(from: oldRRTyreDamage, to: cs.tyresDamage[1]) {
+                            print("🛠 \(driver.name)'s rear right tyre damage level has changed from \(oldRRTyreDamage) to \(cs.tyresDamage[1])")
+                            uiDelegate?.driver(driver, rearRightTyreDamageChangedFrom: oldRRTyreDamage, to: cs.tyresDamage[1])
+                        }
+                    }
+                }
 				if liveSessionInfo.participants[i].carStatus.frontLeftWingDamage != cs.frontLeftWingDamage {
 					let oldFLWingDamage = liveSessionInfo.participants[i].carStatus.frontLeftWingDamage
 					liveSessionInfo.participants[i].carStatus.frontLeftWingDamage = cs.frontLeftWingDamage
@@ -532,9 +546,148 @@ extension TKListener: TKDelegate {
         for (i, cd) in carDamages.enumerated() {
             if i < liveSessionInfo.participants.count {
                 let driver = liveSessionInfo.driver(no: UInt8(i)) ?? TKParticipantInfo()
-                //TODO similar to func update(carStatuses: [TKCarStatusData])
+                if liveSessionInfo.participants[i].carStatus.frontLeftTyreDamage != cd.tyresDamage[2] {
+                    let oldFLTyreDamage = liveSessionInfo.participants[i].carStatus.frontLeftTyreDamage
+                    liveSessionInfo.participants[i].carStatus.frontLeftTyreDamage = cd.tyresDamage[2]
+                    if TKListener.isSignificantDamageDiff(from: oldFLTyreDamage, to: cd.tyresDamage[2]) {
+                        print("🛠 \(driver.name)'s front left tyre damage level has changed from \(oldFLTyreDamage) to \(cd.tyresDamage[2])")
+                        uiDelegate?.driver(driver, frontLeftTyreDamageChangedFrom: oldFLTyreDamage, to: cd.tyresDamage[2])
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.frontRightTyreDamage != cd.tyresDamage[3] {
+                    let oldFRTyreDamage = liveSessionInfo.participants[i].carStatus.frontRightTyreDamage
+                    liveSessionInfo.participants[i].carStatus.frontRightTyreDamage = cd.tyresDamage[3]
+                    if TKListener.isSignificantDamageDiff(from: oldFRTyreDamage, to: cd.tyresDamage[3]) {
+                        print("🛠 \(driver.name)'s front right tyre damage level has changed from \(oldFRTyreDamage) to \(cd.tyresDamage[3])")
+                        uiDelegate?.driver(driver, frontRightTyreDamageChangedFrom: oldFRTyreDamage, to: cd.tyresDamage[3])
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.rearLeftTyreDamage != cd.tyresDamage[0] {
+                    let oldRLTyreDamage = liveSessionInfo.participants[i].carStatus.rearLeftTyreDamage
+                    liveSessionInfo.participants[i].carStatus.rearLeftTyreDamage = cd.tyresDamage[0]
+                    if TKListener.isSignificantDamageDiff(from: oldRLTyreDamage, to: cd.tyresDamage[0]) {
+                        print("🛠 \(driver.name)'s rear left tyre damage level has changed from \(oldRLTyreDamage) to \(cd.tyresDamage[0])")
+                        uiDelegate?.driver(driver, rearLeftTyreDamageChangedFrom: oldRLTyreDamage, to: cd.tyresDamage[0])
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.rearRightTyreDamage != cd.tyresDamage[1] {
+                    let oldRRTyreDamage = liveSessionInfo.participants[i].carStatus.rearRightTyreDamage
+                    liveSessionInfo.participants[i].carStatus.rearRightTyreDamage = cd.tyresDamage[1]
+                    if TKListener.isSignificantDamageDiff(from: oldRRTyreDamage, to: cd.tyresDamage[1]) {
+                        print("🛠 \(driver.name)'s rear right tyre damage level has changed from \(oldRRTyreDamage) to \(cd.tyresDamage[1])")
+                        uiDelegate?.driver(driver, rearRightTyreDamageChangedFrom: oldRRTyreDamage, to: cd.tyresDamage[1])
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.frontLeftBrakeDamage != cd.brakesDamage[2] {
+                    let oldFLBrakeDamage = liveSessionInfo.participants[i].carStatus.frontLeftBrakeDamage
+                    liveSessionInfo.participants[i].carStatus.frontLeftBrakeDamage = cd.brakesDamage[2]
+                    if TKListener.isSignificantDamageDiff(from: oldFLBrakeDamage, to: cd.brakesDamage[2]) {
+                        print("🛠 \(driver.name)'s front left brake damage level has changed from \(oldFLBrakeDamage) to \(cd.brakesDamage[2])")
+                        uiDelegate?.driver(driver, frontLeftBrakeDamageChangedFrom: oldFLBrakeDamage, to: cd.brakesDamage[2])
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.frontRightBrakeDamage != cd.brakesDamage[3] {
+                    let oldFRBrakeDamage = liveSessionInfo.participants[i].carStatus.frontRightBrakeDamage
+                    liveSessionInfo.participants[i].carStatus.frontRightBrakeDamage = cd.brakesDamage[3]
+                    if TKListener.isSignificantDamageDiff(from: oldFRBrakeDamage, to: cd.brakesDamage[3]) {
+                        print("🛠 \(driver.name)'s front right brake damage level has changed from \(oldFRBrakeDamage) to \(cd.brakesDamage[3])")
+                        uiDelegate?.driver(driver, frontRightBrakeDamageChangedFrom: oldFRBrakeDamage, to: cd.brakesDamage[3])
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.rearLeftBrakeDamage != cd.brakesDamage[0] {
+                    let oldRLBrakeDamage = liveSessionInfo.participants[i].carStatus.rearLeftBrakeDamage
+                    liveSessionInfo.participants[i].carStatus.rearLeftBrakeDamage = cd.brakesDamage[0]
+                    if TKListener.isSignificantDamageDiff(from: oldRLBrakeDamage, to: cd.brakesDamage[0]) {
+                        print("🛠 \(driver.name)'s rear left brake damage level has changed from \(oldRLBrakeDamage) to \(cd.brakesDamage[0])")
+                        uiDelegate?.driver(driver, rearLeftBrakeDamageChangedFrom: oldRLBrakeDamage, to: cd.brakesDamage[0])
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.rearRightBrakeDamage != cd.brakesDamage[1] {
+                    let oldRRBrakeDamage = liveSessionInfo.participants[i].carStatus.rearRightBrakeDamage
+                    liveSessionInfo.participants[i].carStatus.rearRightBrakeDamage = cd.brakesDamage[1]
+                    if TKListener.isSignificantDamageDiff(from: oldRRBrakeDamage, to: cd.brakesDamage[1]) {
+                        print("🛠 \(driver.name)'s rear right brake damage level has changed from \(oldRRBrakeDamage) to \(cd.brakesDamage[1])")
+                        uiDelegate?.driver(driver, rearRightBrakeDamageChangedFrom: oldRRBrakeDamage, to: cd.brakesDamage[1])
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.frontLeftWingDamage != cd.frontLeftWingDamage {
+                    let oldFLWingDamage = liveSessionInfo.participants[i].carStatus.frontLeftWingDamage
+                    liveSessionInfo.participants[i].carStatus.frontLeftWingDamage = cd.frontLeftWingDamage
+                    if TKListener.isSignificantDamageDiff(from: oldFLWingDamage, to: cd.frontLeftWingDamage) {
+                        print("🛠 \(driver.name)'s front left wing damage level has changed from \(oldFLWingDamage) to \(cd.frontLeftWingDamage)")
+                        uiDelegate?.driver(driver, frontLeftWingDamageChangedFrom: oldFLWingDamage, to: cd.frontLeftWingDamage)
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.frontRightWingDamage != cd.frontRightWingDamage {
+                    let oldFRWingDamage = liveSessionInfo.participants[i].carStatus.frontRightWingDamage
+                    liveSessionInfo.participants[i].carStatus.frontRightWingDamage = cd.frontRightWingDamage
+                    if TKListener.isSignificantDamageDiff(from: oldFRWingDamage, to: cd.frontRightWingDamage) {
+                        print("🛠 \(driver.name)'s front right wing damage level has changed from \(oldFRWingDamage) to \(cd.frontRightWingDamage)")
+                        uiDelegate?.driver(driver, frontRightWingDamageChangedFrom: oldFRWingDamage, to: cd.frontRightWingDamage)
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.rearWingDamage != cd.rearWingDamage {
+                    let oldRWingDamage = liveSessionInfo.participants[i].carStatus.rearWingDamage
+                    liveSessionInfo.participants[i].carStatus.rearWingDamage = cd.rearWingDamage
+                    if TKListener.isSignificantDamageDiff(from: oldRWingDamage, to: cd.rearWingDamage) {
+                        print("🛠 \(driver.name)'s rear wing damage level has changed from \(oldRWingDamage) to \(cd.rearWingDamage)")
+                        uiDelegate?.driver(driver, rearWingDamageChangedFrom: oldRWingDamage, to: cd.rearWingDamage)
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.floorDamage != cd.floorDamage {
+                    let oldFloorDamage = liveSessionInfo.participants[i].carStatus.floorDamage
+                    liveSessionInfo.participants[i].carStatus.floorDamage = cd.floorDamage
+                    if TKListener.isSignificantDamageDiff(from: oldFloorDamage, to: cd.floorDamage) {
+                        print("🛠 \(driver.name)'s floor damage level has changed from \(oldFloorDamage) to \(cd.floorDamage)")
+                        uiDelegate?.driver(driver, floorDamageChangedFrom: oldFloorDamage, to: cd.floorDamage)
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.diffuserDamage != cd.diffuserDamage {
+                    let oldDiffuserDamage = liveSessionInfo.participants[i].carStatus.diffuserDamage
+                    liveSessionInfo.participants[i].carStatus.diffuserDamage = cd.diffuserDamage
+                    if TKListener.isSignificantDamageDiff(from: oldDiffuserDamage, to: cd.diffuserDamage) {
+                        print("🛠 \(driver.name)'s diffuser damage level has changed from \(oldDiffuserDamage) to \(cd.diffuserDamage)")
+                        uiDelegate?.driver(driver, diffuserDamageChangedFrom: oldDiffuserDamage, to: cd.diffuserDamage)
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.sidepodDamage != cd.sidepodDamage {
+                    let oldSidepodDamage = liveSessionInfo.participants[i].carStatus.sidepodDamage
+                    liveSessionInfo.participants[i].carStatus.sidepodDamage = cd.sidepodDamage
+                    if TKListener.isSignificantDamageDiff(from: oldSidepodDamage, to: cd.sidepodDamage) {
+                        print("🛠 \(driver.name)'s sidepod damage level has changed from \(oldSidepodDamage) to \(cd.sidepodDamage)")
+                        uiDelegate?.driver(driver, sidepodDamageChangedFrom: oldSidepodDamage, to: cd.sidepodDamage)
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.drsFault != cd.drsFault.boolValue {
+                    let oldDRSFault = liveSessionInfo.participants[i].carStatus.drsFault
+                    liveSessionInfo.participants[i].carStatus.drsFault = cd.drsFault.boolValue
+                    print("🛠 \(driver.name)'s DRS fault indicator has changed from \(oldDRSFault) to \(cd.drsFault)")
+                    uiDelegate?.driver(driver, drsFaultChangedFrom: oldDRSFault, to: cd.drsFault.boolValue)
+                }
+                if liveSessionInfo.participants[i].carStatus.gearBoxDamage != cd.gearBoxDamage {
+                    let oldGearBoxDamage = liveSessionInfo.participants[i].carStatus.gearBoxDamage
+                    liveSessionInfo.participants[i].carStatus.gearBoxDamage = cd.gearBoxDamage
+                    if TKListener.isSignificantDamageDiff(from: oldGearBoxDamage, to: cd.gearBoxDamage) {
+                        print("🛠 \(driver.name)'s gearbox damage level has changed from \(oldGearBoxDamage) to \(cd.gearBoxDamage)")
+                        uiDelegate?.driver(driver, gearboxDamageChangedFrom: oldGearBoxDamage, to: cd.gearBoxDamage)
+                    }
+                }
+                if liveSessionInfo.participants[i].carStatus.engineDamage != cd.engineDamage {
+                    let oldEngineDamage = liveSessionInfo.participants[i].carStatus.engineDamage
+                    liveSessionInfo.participants[i].carStatus.engineDamage = cd.engineDamage
+                    if TKListener.isSignificantDamageDiff(from: oldEngineDamage, to: cd.engineDamage) {
+                        print("🛠 \(driver.name)'s engine damage level has changed from \(oldEngineDamage) to \(cd.engineDamage)")
+                        uiDelegate?.driver(driver, engineDamageChangedFrom: oldEngineDamage, to: cd.engineDamage)
+                    }
+                }
             }
         }
+    }
+    
+    func update(sessionHistory: TKSessionHistoryPacket, forDriverNo driverNo: UInt8) {
+        let driver = liveSessionInfo.driver(no: driverNo) ?? TKParticipantInfo()
+        print("⏱ Received session history for \(driver.name)")
+        // TODO: propagate this to the UI
     }
 	
 	func update(finalClassification: [TKFinalClassificationData]) {

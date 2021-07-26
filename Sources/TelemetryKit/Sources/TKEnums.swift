@@ -81,7 +81,7 @@ extension TKBool {
 	
 }
 
-public enum TKPacketType: UInt8 {
+public enum TKPacketType: UInt8, CaseIterable {
 	
 	case motion
 	case session
@@ -1943,6 +1943,7 @@ public enum TKNationality: UInt8 {
 	case barbadian
     case welsh
 	case vietnamese
+    case other = 255 // RLT: Added while debugging in F1 2021
 	
 }
 
@@ -2126,6 +2127,8 @@ extension TKNationality {
             return "🏴󠁧󠁢󠁷󠁬󠁳󠁿"
 		case .vietnamese:
 			return "🇻🇳"
+        case .other:
+            return "🏳️"
 		}
 	}
 	

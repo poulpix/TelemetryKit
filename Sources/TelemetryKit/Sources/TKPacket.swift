@@ -75,7 +75,7 @@ internal extension TKPacket {
 		while result.count < size {
 			let packet = T.build(fromRawData: data, at: o, forVersion: version)
 			result.append(packet)
-			o += packetSize(forVersion: version)
+            o += T.packetSize(forVersion: version)
 		}
 		return result
 	}

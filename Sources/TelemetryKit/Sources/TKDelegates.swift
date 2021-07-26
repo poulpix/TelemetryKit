@@ -45,7 +45,10 @@ internal protocol TKDelegate {
 	func update(carStatuses: [TKCarStatusData])
     
     // Car damages-related messages
-    func update(carDamages: [TKCarDamageData])
+    func update(carDamages: [TKCarDamageData]) // New in F1 2021
+    
+    // Session history-related messages
+    func update(sessionHistory: TKSessionHistoryPacket, forDriverNo driverNo: UInt8) // New in F1 2021
 	
 	// Final classification-related messages
 	func update(finalClassification: [TKFinalClassificationData])
@@ -111,11 +114,19 @@ public protocol TKUIDelegate {
 	func driver(_ driver: TKParticipantInfo, frontRightTyreDamageChangedFrom frTyreDamageFrom: UInt8, to frTyreDamageTo: UInt8)
 	func driver(_ driver: TKParticipantInfo, rearLeftTyreDamageChangedFrom rlTyreDamageFrom: UInt8, to rlTyreDamageTo: UInt8)
 	func driver(_ driver: TKParticipantInfo, rearRightTyreDamageChangedFrom rrTyreDamageFrom: UInt8, to rrTyreDamageTo: UInt8)
+    func driver(_ driver: TKParticipantInfo, frontLeftBrakeDamageChangedFrom flBrakeDamageFrom: UInt8, to flBrakeDamageTo: UInt8)
+    func driver(_ driver: TKParticipantInfo, frontRightBrakeDamageChangedFrom frBrakeDamageFrom: UInt8, to frBrakeDamageTo: UInt8)
+    func driver(_ driver: TKParticipantInfo, rearLeftBrakeDamageChangedFrom rlBrakeDamageFrom: UInt8, to rlBrakeDamageTo: UInt8)
+    func driver(_ driver: TKParticipantInfo, rearRightBrakeDamageChangedFrom rrBrakeDamageFrom: UInt8, to rrBrakeDamageTo: UInt8)
 	func driver(_ driver: TKParticipantInfo, frontLeftWingDamageChangedFrom flWingDamageFrom: UInt8, to flWingDamageTo: UInt8)
 	func driver(_ driver: TKParticipantInfo, frontRightWingDamageChangedFrom frWingDamageFrom: UInt8, to frWingDamageTo: UInt8)
 	func driver(_ driver: TKParticipantInfo, rearWingDamageChangedFrom rWingDamageFrom: UInt8, to rWingDamageTo: UInt8)
+    func driver(_ driver: TKParticipantInfo, floorDamageChangedFrom floorDamageFrom: UInt8, to floorDamageTo: UInt8)
+    func driver(_ driver: TKParticipantInfo, diffuserDamageChangedFrom diffuserDamageFrom: UInt8, to diffuserDamageTo: UInt8)
+    func driver(_ driver: TKParticipantInfo, sidepodDamageChangedFrom sidepodDamageFrom: UInt8, to sidepodDamageTo: UInt8)
+    func driver(_ driver: TKParticipantInfo, drsFaultChangedFrom drsFaultFrom: Bool, to drsFaultTo: Bool)
+    func driver(_ driver: TKParticipantInfo, gearboxDamageChangedFrom gbxDamageFrom: UInt8, to gbxDamageTo: UInt8)
 	func driver(_ driver: TKParticipantInfo, engineDamageChangedFrom engDamageFrom: UInt8, to engDamageTo: UInt8)
-	func driver(_ driver: TKParticipantInfo, gearboxDamageChangedFrom gbxDamageFrom: UInt8, to gbxDamageTo: UInt8)
 
 	// Enriched messages
 	func driversPositionsChanged(_ rankings: [TKSessionRanking])
