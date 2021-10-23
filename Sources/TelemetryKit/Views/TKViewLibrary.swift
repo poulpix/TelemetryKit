@@ -17,8 +17,8 @@ struct TKViewLibrary: LibraryContentProvider {
 		LibraryItem(TKTextLabelView("Label:", data: .constant("test")), title: "Label with data (of string type)", category: .control)
 		LibraryItem(TKBooleanLabelView("Label:", data: .constant(true)), title: "Label with data (of boolean type)", category: .control)
         LibraryItem(TKNumericLabelView("Label:", data: .constant(12345)), title: "Label with data (of numeric type)", category: .control)
-		LibraryItem(TKDriverCompactView( title: "Represents a driver info (compact version)", category: .control)
-		LibraryItem(TKLiveRankingsRaceView( title: "Represents a live rankings view (race version)", category: .control)
+		LibraryItem(TKDriverCompactView(driver: TKParticipantInfo ),title: "Represents a driver info (compact version)", category: .control)
+		LibraryItem(TKLiveRankingsRaceView(liveSessionInfo: TKLiveSessionInfo ),title: "Represents a live rankings view (race version)", category: .control)
 		LibraryItem(TKTyreCompoundView(.constant(.f1ModernSoft)), title: "Represents a tyre compound", category: .control)
 	}
  
